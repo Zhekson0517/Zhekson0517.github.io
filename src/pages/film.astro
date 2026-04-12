@@ -1,0 +1,294 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import films from '../data/films.json';
+
+const sortedByYear = [...films].sort((a, b) => a.year - b.year);
+
+const decades = [...new Set(sortedByYear.map(f => Math.floor(f.year / 10) * 10))];
+---
+
+<BaseLayout title="Film" description="Film collection — 豆瓣 Top 50 电影时间线。">
+  <section class="fade-in">
+    <h1 class="section-title">Film</h1>
+    <p class="film-intro">
+      电影时间线，按年代排列。数据来源：豆瓣电影 Top 250。
+    </p>
+
+    <div class="decade-nav">
+      {decades.map(d => (
+        <a href={`#decade-${d}`} class="decade-link">{d}s</a>
+      ))}
+    </div>
+
+    <div class="timeline">
+      {decades.map(decade => {
+        const decadeFilms = sortedByYear.filter(f => Math.floor(f.year / 10) * 10 === decade);
+        return (
+          <div class="decade-group" id={`decade-${decade}`}>
+            <div class="decade-marker">{decade}s</div>
+            <div class="decade-films">
+              {decadeFilms.map(film => (
+                <div class="film-card fade-in">
+                  <div class="film-rank">#{film.rank}</div>
+                  <div class="film-body">
+                    <div class="film-title-row">
+                      <span class="film-title">{film.title}</span>
+                      <span class="film-title-en">{film.titleEn}</span>
+                    </div>
+                    <div class="film-meta">
+                      <span class="film-year">{film.year}</span>
+                      <span class="film-sep">·</span>
+                      <span class="film-director">{film.director}</span>
+                      <span class="film-sep">·</span>
+                      <span class="film-country">{film.country}</span>
+                    </div>
+                    <div class="film-genre">{film.genre}</div>
+                    <div class="film-quote">「{film.quote}」</div>
+                    <div class="film-rating">
+                      <span class="rating-star">★</span>
+                      <span class="rating-score">{film.rating}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .film-intro {
+    text-indent: 0;
+    margin-bottom: 1.5em;
+    color: var(--color-secondary);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-body);
+  }
+
+  .decade-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    margin-bottom: 2em;
+    padding-bottom: 1em;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .decade-link {
+    font-family: var(--font-sans);
+    font-size: var(--font-size-small);
+    padding: 0.3em 0.8em;
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+    color: var(--color-secondary);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+  }
+
+  .decade-link:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    background: var(--color-tag-bg);
+  }
+
+  .timeline {
+    position: relative;
+    padding-left: 3em;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 1.2em;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--color-border);
+  }
+
+  .decade-group {
+    margin-bottom: 2.5em;
+    position: relative;
+  }
+
+  .decade-marker {
+    font-family: var(--font-sans);
+    font-size: 18pt;
+    font-weight: 700;
+    color: var(--color-accent);
+    margin-bottom: 0.8em;
+    position: relative;
+  }
+
+  .decade-marker::before {
+    content: '';
+    position: absolute;
+    left: -2.1em;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    border: 2px solid var(--color-bg);
+    box-shadow: 0 0 0 2px var(--color-accent);
+  }
+
+  .decade-films {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6em;
+  }
+
+  .film-card {
+    display: flex;
+    gap: 1em;
+    padding: 0.8em 1em;
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+    background: var(--color-bg);
+    transition: all var(--transition-normal);
+    position: relative;
+  }
+
+  .film-card::before {
+    content: '';
+    position: absolute;
+    left: -2.05em;
+    top: 1.2em;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-border);
+    transition: background var(--transition-fast);
+  }
+
+  .film-card:hover {
+    transform: translateX(4px);
+    border-color: var(--color-accent);
+    box-shadow: 0 2px 8px var(--color-card-shadow);
+  }
+
+  .film-card:hover::before {
+    background: var(--color-accent);
+  }
+
+  .film-rank {
+    font-family: var(--font-sans);
+    font-size: 14pt;
+    font-weight: 700;
+    color: var(--color-accent);
+    min-width: 2.5em;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 0.1em;
+  }
+
+  .film-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .film-title-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6em;
+    flex-wrap: wrap;
+    margin-bottom: 0.2em;
+  }
+
+  .film-title {
+    font-family: var(--font-sans);
+    font-size: 13pt;
+    font-weight: 600;
+    color: var(--color-heading);
+  }
+
+  .film-title-en {
+    font-family: var(--font-serif);
+    font-size: var(--font-size-small);
+    color: var(--color-secondary);
+    font-style: italic;
+  }
+
+  .film-meta {
+    font-family: var(--font-sans);
+    font-size: var(--font-size-small);
+    color: var(--color-secondary);
+    margin-bottom: 0.2em;
+  }
+
+  .film-sep {
+    margin: 0 0.3em;
+  }
+
+  .film-genre {
+    font-family: var(--font-sans);
+    font-size: var(--font-size-small);
+    color: var(--color-secondary);
+    margin-bottom: 0.3em;
+  }
+
+  .film-quote {
+    font-family: var(--font-serif);
+    font-size: var(--font-size-small);
+    color: var(--color-text);
+    font-style: italic;
+    line-height: 1.5;
+    margin-bottom: 0.2em;
+  }
+
+  .film-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.3em;
+  }
+
+  .rating-star {
+    color: #f5a623;
+    font-size: 12pt;
+  }
+
+  .rating-score {
+    font-family: var(--font-sans);
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    color: var(--color-accent);
+  }
+
+  @media (max-width: 768px) {
+    .timeline {
+      padding-left: 2em;
+    }
+
+    .timeline::before {
+      left: 0.5em;
+    }
+
+    .decade-marker::before {
+      left: -1.7em;
+    }
+
+    .film-card::before {
+      left: -1.65em;
+    }
+
+    .film-card {
+      flex-direction: column;
+      gap: 0.3em;
+    }
+
+    .film-rank {
+      min-width: auto;
+      font-size: 12pt;
+    }
+
+    .film-title-row {
+      flex-direction: column;
+      gap: 0.1em;
+    }
+  }
+</style>
