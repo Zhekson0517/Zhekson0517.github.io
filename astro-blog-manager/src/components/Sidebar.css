@@ -1,168 +1,155 @@
 .sidebar {
-  width: var(--sidebar-width);
-  min-width: var(--sidebar-width);
-  background: var(--bg-secondary);
-  border-right: 1px solid var(--border-light);
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   flex-shrink: 0;
 }
 
-.sidebar-header {
-  height: var(--toolbar-height);
+.sidebar-head {
+  height: var(--toolbar-h);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 12px;
-  border-bottom: 1px solid var(--border-light);
+  padding: 0 10px;
+  border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
 
-.sidebar-project-name {
+.sidebar-title {
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.sidebar-header-actions {
+.sidebar-actions {
   display: flex;
-  gap: 4px;
+  gap: 2px;
 }
 
-.sidebar-icon-btn {
-  width: 24px;
-  height: 24px;
+.sbtn {
+  width: 26px;
+  height: 26px;
   border: none;
   background: none;
-  color: var(--text-secondary);
+  color: var(--text-sec);
   cursor: pointer;
   font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 4px;
-  transition: all 0.1s ease;
 }
 
-.sidebar-icon-btn:hover {
-  background: var(--accent-light);
-  color: var(--accent);
+.sbtn:hover {
+  background: var(--bg-hover);
+  color: var(--text);
 }
 
-.new-file-form {
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--border-light);
-  background: var(--bg-tertiary);
+.new-file-box {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
 }
+
+.new-file-select {
+  width: 100%;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-input);
+  color: var(--text);
+  margin-bottom: 6px;
+  outline: none;
+}
+
+.new-file-select:focus { border-color: var(--accent); }
 
 .new-file-input {
   width: 100%;
   font-family: var(--font-mono);
   font-size: 12px;
-  padding: 6px 8px;
+  padding: 5px 6px;
   border: 1px solid var(--border);
   border-radius: 4px;
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  background: var(--bg-input);
+  color: var(--text);
   outline: none;
 }
 
-.new-file-input:focus {
-  border-color: var(--accent);
-}
+.new-file-input:focus { border-color: var(--accent); }
 
-.new-file-actions {
+.new-file-btns {
   display: flex;
   gap: 6px;
   margin-top: 6px;
 }
 
-.new-file-btn {
+.nbtn {
   font-family: var(--font-ui);
-  font-size: 11px;
-  padding: 3px 8px;
-  border: 1px solid var(--accent);
-  border-radius: 3px;
-  background: var(--accent);
-  color: white;
+  font-size: 12px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text-sec);
   cursor: pointer;
 }
 
-.new-file-btn.cancel {
-  background: none;
-  color: var(--text-secondary);
-  border-color: var(--border);
+.nbtn.primary {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
 }
 
-.sidebar-tree {
+.tree-scroll {
   flex: 1;
   overflow-y: auto;
   padding: 4px 0;
 }
 
-.sidebar-item {
+.tree-item {
   display: flex;
   align-items: center;
-  height: 26px;
+  height: 24px;
   cursor: pointer;
-  font-size: 13px;
-  color: var(--text-primary);
-  transition: background 0.1s ease;
+  font-size: 12px;
+  color: var(--text);
   user-select: none;
+  white-space: nowrap;
 }
 
-.sidebar-item:hover {
-  background: var(--accent-light);
-}
+.tree-item:hover { background: var(--bg-hover); }
 
-.sidebar-item.selected {
-  background: var(--accent-light);
-  color: var(--accent);
-}
+.tree-item.selected { background: var(--bg-selected); }
 
-.sidebar-item.file-item:not(.editable) {
-  color: var(--text-tertiary);
+.tree-item.file:not(.editable) {
+  color: var(--text-tri);
   cursor: default;
 }
 
-.sidebar-item.file-item:not(.editable):hover {
-  background: none;
-}
+.tree-item.file:not(.editable):hover { background: none; }
 
-.dir-arrow {
+.tree-arrow {
   width: 12px;
   font-size: 10px;
-  color: var(--text-tertiary);
+  color: var(--text-tri);
   flex-shrink: 0;
+  text-align: center;
 }
 
 .dir-name {
   font-weight: 500;
-  font-size: 12px;
-  color: var(--text-secondary);
 }
 
-.content-dir .dir-name {
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-.file-icon {
-  width: 16px;
-  font-size: 11px;
-  color: var(--text-tertiary);
-  flex-shrink: 0;
-  text-align: center;
-  margin-right: 4px;
-}
-
-.file-name {
-  font-size: 12px;
+.tree-name {
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }

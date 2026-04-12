@@ -6,33 +6,33 @@ import ProjectSelector from './components/ProjectSelector';
 import Sidebar from './components/Sidebar';
 import Editor from './components/Editor';
 import Preview from './components/Preview';
-import StatusBar from './components/StatusBar';
+import Toolbar from './components/Toolbar';
+import LogPanel from './components/LogPanel';
 import { FileEntry } from './types';
 
-const RECENT_KEY = 'recent-project';
+const CONFIG_KEY = 'recent-project';
 
 function App() {
   const [projectDir, setProjectDir] = useState<string | null>(null);
-  const [files, setFiles] = useState<FileEntry[]>([]);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [fileContent, setFileContent] = useState('');
   const [originalContent, setOriginalContent] = useState('');
   const [isDirty, setIsDirty] = useState(false);
-  const [devServerRunning, setDevServerRunning] = useState(false);
-  const [devServerLogs, setDevServerLogs] = useState<string[]>([]);
+  const [devRunning, setDevRunning] = useState(false);
+  const [logs, setLogs] = useState<string[]>([]);
   const [showPreview, setShowPreview] = useState(true);
+  const [showLogs, setShowLogs] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    invoke<string | null>('load_config', { key: RECENT_KEY })
+    invoke<string | null>('load_config', { key: CONFIG_KEY })
       .then((result) => {
         if (result) {
           try {
-            const recent = JSON.parse(result);
-            if (recent && recent.dir) {
-              setProjectDir(recent.dir);
-            }
+            const data = JSON.parse(result);
+            if (data?.dir) setProjectDir(data.dir);
           } catch {}
         }
       })
@@ -40,66 +40,33 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!projectDir) return;
-
-    invoke<FileEntry[]>('scan_directory', { dir: projectDir })
-      .then((entries) => {
-        setFiles(entries);
-        setError(null);
-      })
-      .catch((e) => setError(String(e)));
-  }, [projectDir]);
-
-  useEffect(() => {
-    const unlistenStatus = listen<string>('dev-status', (event) => {
-      setDevServerRunning(event.payload === 'running');
-    });
-
-    const unlistenOutput = listen<string>('dev-output', (event) => {
-      setDevServerLogs((prev) => [...prev.slice(-200), event.payload]);
-    });
-
-    return () => {
-      unlistenStatus.then((fn) => fn());
-      unlistenOutput.then((fn) => fn());
-    };
+    const u1 = listen<string>('dev-status', (e) => setDevRunning(e.payload === 'running'));
+    const u2 = listen<string>('dev-output', (e) => setLogs((p) => [...p.slice(-300), e.payload]));
+    return () => { u1.then(f => f()); u2.then(f => f()); };
   }, []);
 
-  const handleProjectSelected = useCallback(async (dir: string) => {
+  const selectProject = useCallback(async () => {
     try {
-      const valid = await invoke<boolean>('validate_astro_project', { dir });
-      if (!valid) {
-        setError('Not a valid Astro project (no astro.config.mjs found)');
-        return;
-      }
-      setProjectDir(dir);
-      setSelectedFile(null);
-      setFileContent('');
-      setOriginalContent('');
-      setIsDirty(false);
-      setError(null);
-      invoke('save_config', { key: RECENT_KEY, value: JSON.stringify({ dir }) }).catch(() => {});
-    } catch (e) {
-      setError(String(e));
-    }
-  }, []);
-
-  const handleSelectDirectory = useCallback(async () => {
-    try {
-      const selected = await open({ directory: true, multiple: false, title: 'Select Astro Project' });
+      const selected = await open({ directory: true, multiple: false, title: '选择 Astro 项目' });
       if (selected && typeof selected === 'string') {
-        await handleProjectSelected(selected);
+        const valid = await invoke<boolean>('validate_astro_project', { dir: selected });
+        if (!valid) { setError('不是有效的 Astro 项目（未找到 astro.config.mjs）'); return; }
+        setProjectDir(selected);
+        setSelectedFile(null);
+        setFileContent('');
+        setOriginalContent('');
+        setIsDirty(false);
+        setError(null);
+        invoke('save_config', { key: CONFIG_KEY, value: JSON.stringify({ dir: selected }) }).catch(() => {});
       }
-    } catch (e) {
-      setError(String(e));
-    }
-  }, [handleProjectSelected]);
+    } catch (e) { setError(String(e)); }
+  }, []);
 
-  const handleSelectFile = useCallback(async (path: string) => {
+  const selectFile = useCallback(async (path: string) => {
     if (isDirty && selectedFile) {
-      const confirmed = window.confirm('Unsaved changes will be lost. Continue?');
-      if (!confirmed) return;
+      if (!window.confirm('有未保存的修改，确定切换文件？')) return;
     }
+    setLoading(true);
     try {
       const content = await invoke<string>('read_file', { path });
       setSelectedFile(path);
@@ -107,9 +74,8 @@ function App() {
       setOriginalContent(content);
       setIsDirty(false);
       setError(null);
-    } catch (e) {
-      setError(String(e));
-    }
+    } catch (e) { setError(String(e)); }
+    finally { setLoading(false); }
   }, [isDirty, selectedFile]);
 
   const handleContentChange = useCallback((content: string) => {
@@ -125,62 +91,72 @@ function App() {
       setOriginalContent(fileContent);
       setIsDirty(false);
       setError(null);
-    } catch (e) {
-      setError(String(e));
-    } finally {
-      setSaving(false);
-    }
+    } catch (e) { setError(String(e)); }
+    finally { setSaving(false); }
   }, [selectedFile, fileContent, isDirty]);
 
-  const handleCreateFile = useCallback(async (path: string, content: string) => {
+  const handleNewFile = useCallback(async (collection: string, filename: string) => {
+    if (!projectDir || !filename.trim()) return;
+    const slug = filename.replace(/\.(mdx|md)$/, '').trim();
+    const path = `${projectDir}/src/content/${collection}/${slug}.mdx`;
+    const today = new Date().toISOString().split('T')[0];
+    const content = `---\ntitle: ""\nchapter: 1\nslug: "${slug}"\npublishedAt: "${today}"\nupdatedAt: "${today}"\ncategory: ""\ntags: []\nabstract: ""\nkeywords: []\n---\n\n## \n`;
     try {
       await invoke('create_file', { path, content });
-      const entries = await invoke<FileEntry[]>('scan_directory', { dir: projectDir! });
-      setFiles(entries);
       setSelectedFile(path);
       setFileContent(content);
       setOriginalContent(content);
       setIsDirty(false);
       setError(null);
-    } catch (e) {
-      setError(String(e));
-    }
+    } catch (e) { setError(String(e)); }
+  }, [projectDir]);
+
+  const handleImportMd = useCallback(async () => {
+    try {
+      const selected = await open({
+        multiple: false,
+        title: '选择 Markdown 文件',
+        filters: [{ name: 'Markdown', extensions: ['md', 'mdx'] }],
+      });
+      if (!selected || typeof selected !== 'string') return;
+      const name = selected.split('/').pop()?.replace(/\.(md|mdx)$/, '') || 'imported';
+      const destDir = `${projectDir}/src/content/notes`;
+      const result = await invoke<string>('import_markdown', { srcPath: selected, destDir, slug: name });
+      const content = await invoke<string>('read_file', { path: result });
+      setSelectedFile(result);
+      setFileContent(content);
+      setOriginalContent(content);
+      setIsDirty(false);
+      setError(null);
+    } catch (e) { setError(String(e)); }
   }, [projectDir]);
 
   const handleStartDev = useCallback(async () => {
-    try {
-      setDevServerLogs([]);
-      await invoke('start_dev_server', { projectDir });
-    } catch (e) {
-      setError(String(e));
-    }
+    try { setLogs([]); await invoke('start_dev_server', { projectDir }); }
+    catch (e) { setError(String(e)); }
   }, [projectDir]);
 
   const handleStopDev = useCallback(async () => {
-    try {
-      await invoke('stop_dev_server');
-    } catch (e) {
-      setError(String(e));
-    }
+    try { await invoke('stop_dev_server'); }
+    catch (e) { setError(String(e)); }
   }, []);
 
   const handleBuild = useCallback(async () => {
     try {
+      setLogs((p) => [...p, '$ npm run build']);
       const output = await invoke<string>('build_project', { projectDir });
-      setDevServerLogs((prev) => [...prev, '--- BUILD OUTPUT ---', ...output.split('\n')]);
-    } catch (e) {
-      setError(String(e));
-    }
+      setLogs((p) => [...p, ...output.split('\n')]);
+    } catch (e) { setError(String(e)); }
   }, [projectDir]);
 
   const handleGitPush = useCallback(async () => {
     try {
-      await invoke('git_add_commit', { projectDir, message: 'update via astro-blog-manager' });
+      const msg = window.prompt('Commit message:', 'update') || 'update';
+      setLogs((p) => [...p, '$ git add -A && git commit && git push']);
+      await invoke('git_add_commit', { projectDir, message: msg });
       const output = await invoke<string>('git_push', { projectDir });
-      setDevServerLogs((prev) => [...prev, '--- GIT PUSH ---', ...output.split('\n')]);
-    } catch (e) {
-      setError(String(e));
-    }
+      setLogs((p) => [...p, ...output.split('\n'), 'Done.']);
+    } catch (e) { setError(String(e)); }
   }, [projectDir]);
 
   const handleNewProject = useCallback(() => {
@@ -189,79 +165,60 @@ function App() {
     setFileContent('');
     setOriginalContent('');
     setIsDirty(false);
-    setFiles([]);
     setError(null);
-    invoke('save_config', { key: RECENT_KEY, value: '{}' }).catch(() => {});
+    invoke('save_config', { key: CONFIG_KEY, value: '{}' }).catch(() => {});
   }, []);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
-        e.preventDefault();
-        handleSave();
-      }
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') { e.preventDefault(); handleSave(); }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [handleSave]);
 
   if (!projectDir) {
-    return <ProjectSelector onSelect={handleSelectDirectory} error={error} />;
+    return <ProjectSelector onSelect={selectProject} error={error} />;
   }
 
   return (
     <div className="app">
       <Sidebar
-        files={files}
-        selectedFile={selectedFile}
-        onSelectFile={handleSelectFile}
         projectDir={projectDir}
-        onCreateFile={handleCreateFile}
+        selectedFile={selectedFile}
+        onSelectFile={selectFile}
+        onNewFile={handleNewFile}
+        onImportMd={handleImportMd}
         onNewProject={handleNewProject}
       />
-      <main className="main">
-        <div className="toolbar">
-          <div className="toolbar-left">
-            {selectedFile && (
-              <span className="file-path">{selectedFile.replace(projectDir, '~')}</span>
-            )}
-            {isDirty && <span className="dirty-dot" />}
-          </div>
-          <div className="toolbar-right">
-            <button
-              className="toolbar-btn"
-              onClick={() => setShowPreview(!showPreview)}
-            >
-              {showPreview ? 'Hide Preview' : 'Show Preview'}
-            </button>
-            <button
-              className="toolbar-btn save-btn"
-              onClick={handleSave}
-              disabled={!isDirty || saving}
-            >
-              {saving ? 'Saving...' : 'Save'}
-            </button>
-          </div>
-        </div>
-        <div className={`editor-preview ${showPreview ? 'with-preview' : ''}`}>
-          <Editor
-            content={fileContent}
-            onChange={handleContentChange}
-            hasFile={!!selectedFile}
-          />
+      <div className="main">
+        <Toolbar
+          selectedFile={selectedFile}
+          projectDir={projectDir}
+          isDirty={isDirty}
+          saving={saving}
+          showPreview={showPreview}
+          devRunning={devRunning}
+          onTogglePreview={() => setShowPreview(!showPreview)}
+          onSave={handleSave}
+          onStartDev={handleStartDev}
+          onStopDev={handleStopDev}
+          onBuild={handleBuild}
+          onPush={handleGitPush}
+          onToggleLogs={() => setShowLogs(!showLogs)}
+        />
+        <div className={`editor-area ${showPreview ? 'split' : 'full'}`}>
+          <Editor content={fileContent} onChange={handleContentChange} loading={loading} hasFile={!!selectedFile} />
           {showPreview && <Preview content={fileContent} />}
         </div>
-      </main>
-      <StatusBar
-        devServerRunning={devServerRunning}
-        logs={devServerLogs}
-        onStartDev={handleStartDev}
-        onStopDev={handleStopDev}
-        onBuild={handleBuild}
-        onGitPush={handleGitPush}
-        error={error}
-        onClearError={() => setError(null)}
-      />
+        {showLogs && <LogPanel logs={logs} onClose={() => setShowLogs(false)} />}
+      </div>
+      {error && (
+        <div className="error-toast">
+          <span>{error}</span>
+          <button onClick={() => setError(null)}>✕</button>
+        </div>
+      )}
     </div>
   );
 }

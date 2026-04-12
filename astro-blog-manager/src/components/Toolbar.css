@@ -1,0 +1,83 @@
+.toolbar {
+  height: var(--toolbar-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-toolbar);
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+.tb-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
+.tb-path {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-sec);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tb-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--warning);
+  flex-shrink: 0;
+}
+
+.tb-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.tb-sep {
+  width: 1px;
+  height: 16px;
+  background: var(--border);
+  margin: 0 2px;
+}
+
+.tbtn {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+  height: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.tbtn:hover { background: var(--bg-hover); }
+
+.tbtn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.tbtn.accent {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.tbtn.accent:hover { opacity: 0.85; }
+
+.tbtn.running {
+  background: var(--success);
+  color: white;
+  border-color: var(--success);
+}

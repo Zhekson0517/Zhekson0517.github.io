@@ -11,10 +11,7 @@ interface Props {
 
 function extractBody(content: string): string {
   const match = content.match(/^---\n[\s\S]*?\n---\n*/);
-  if (match) {
-    return content.slice(match[0].length);
-  }
-  return content;
+  return match ? content.slice(match[0].length) : content;
 }
 
 function Preview({ content }: Props) {
@@ -23,16 +20,14 @@ function Preview({ content }: Props) {
   if (!content.trim()) {
     return (
       <div className="preview">
-        <div className="preview-empty">
-          <p>Preview</p>
-        </div>
+        <div className="preview-inner preview-empty">预览</div>
       </div>
     );
   }
 
   return (
     <div className="preview">
-      <div className="preview-content">
+      <div className="preview-inner">
         <ReactMarkdown
           remarkPlugins={[remarkGfm, remarkMath]}
           rehypePlugins={[rehypeKatex, rehypeRaw]}

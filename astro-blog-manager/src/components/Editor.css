@@ -10,25 +10,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-tertiary);
-  font-size: 14px;
+  color: var(--text-tri);
+  font-size: 13px;
 }
 
-.editor-textarea {
+.editor-ta {
   width: 100%;
   height: 100%;
   resize: none;
   border: none;
   outline: none;
-  padding: 20px 24px;
+  padding: 16px 20px;
   font-family: var(--font-mono);
   font-size: 13px;
   line-height: 1.7;
-  color: var(--text-primary);
-  background: var(--bg-primary);
+  color: var(--text);
+  background: var(--bg);
   tab-size: 2;
-}
-
-.editor-textarea::placeholder {
-  color: var(--text-tertiary);
 }

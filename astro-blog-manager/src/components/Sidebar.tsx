@@ -1,133 +1,183 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { invoke } from '@tauri-apps/api/core';
 import { FileEntry } from '../types';
-import './ProjectSelector.css';
+import './Sidebar.css';
 
 interface Props {
-  files: FileEntry[];
+  projectDir: string;
   selectedFile: string | null;
   onSelectFile: (path: string) => void;
-  projectDir: string;
-  onCreateFile: (path: string, content: string) => void;
+  onNewFile: (collection: string, filename: string) => void;
+  onImportMd: () => void;
   onNewProject: () => void;
 }
 
-function Sidebar({ files, selectedFile, onSelectFile, projectDir, onCreateFile, onNewProject }: Props) {
-  const [expandedDirs, setExpandedDirs] = useState<Set<string>>(() => {
-    const initial = new Set<string>();
-    initial.add(projectDir);
-    const srcDir = files.find(f => f.name === 'src');
-    if (srcDir) {
-      initial.add(srcDir.path);
-      const contentDir = srcDir.children.find(f => f.name === 'content');
-      if (contentDir) initial.add(contentDir.path);
-    }
-    return initial;
-  });
-  const [showNewFile, setShowNewFile] = useState(false);
-  const [newFilePath, setNewFilePath] = useState('');
+interface TreeNode {
+  entry: FileEntry;
+  children: FileEntry[] | null;
+  expanded: boolean;
+  loading: boolean;
+}
 
-  const toggleDir = (path: string) => {
-    setExpandedDirs((prev) => {
-      const next = new Set(prev);
-      if (next.has(path)) {
-        next.delete(path);
+function Sidebar({ projectDir, selectedFile, onSelectFile, onNewFile, onImportMd, onNewProject }: Props) {
+  const [tree, setTree] = useState<Map<string, TreeNode>>(new Map());
+  const [showNewFile, setShowNewFile] = useState(false);
+  const [newCollection, setNewCollection] = useState('notes');
+  const [newFilename, setNewFilename] = useState('');
+
+  const loadDir = useCallback(async (dir: string) => {
+    try {
+      const entries = await invoke<FileEntry[]>('list_dir', { dir });
+      setTree(prev => {
+        const next = new Map(prev);
+        entries.forEach(e => {
+          next.set(e.path, {
+            entry: e,
+            children: null,
+            expanded: false,
+            loading: false,
+          });
+        });
+        const parent = next.get(dir);
+        if (parent) {
+          parent.children = entries;
+          parent.loading = false;
+        }
+        return next;
+      });
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    setTree(new Map());
+    loadDir(projectDir);
+  }, [projectDir, loadDir]);
+
+  const toggleDir = useCallback(async (path: string) => {
+    setTree(prev => {
+      const next = new Map(prev);
+      const node = next.get(path);
+      if (!node) return prev;
+
+      if (node.expanded) {
+        node.expanded = false;
       } else {
-        next.add(path);
+        node.expanded = true;
+        if (node.children === null) {
+          node.loading = true;
+          invoke<FileEntry[]>('list_dir', { dir: path }).then(entries => {
+            setTree(p => {
+              const n = new Map(p);
+              entries.forEach(e => {
+                if (!n.has(e.path)) {
+                  n.set(e.path, { entry: e, children: null, expanded: false, loading: false });
+                }
+              });
+              const nd = n.get(path);
+              if (nd) { nd.children = entries; nd.loading = false; }
+              return n;
+            });
+          }).catch(() => {
+            setTree(p => {
+              const n = new Map(p);
+              const nd = n.get(path);
+              if (nd) nd.loading = false;
+              return n;
+            });
+          });
+        }
       }
       return next;
     });
-  };
+  }, []);
 
-  const handleCreateFile = () => {
-    if (!newFilePath.trim()) return;
-    const fullPath = newFilePath.startsWith('/')
-      ? newFilePath
-      : `${projectDir}/src/content/${newFilePath}`;
-    const path = fullPath.endsWith('.mdx') ? fullPath : fullPath + '.mdx';
-    const today = new Date().toISOString().split('T')[0];
-    const content = `---\ntitle: ""\nchapter: 1\nslug: ""\npublishedAt: "${today}"\nupdatedAt: "${today}"\ncategory: ""\ntags: []\nabstract: ""\nkeywords: []\n---\n\n## \n`;
-    onCreateFile(path, content);
+  const handleCreateFile = useCallback(() => {
+    if (!newFilename.trim()) return;
+    onNewFile(newCollection, newFilename.trim());
     setShowNewFile(false);
-    setNewFilePath('');
-  };
+    setNewFilename('');
+  }, [newCollection, newFilename, onNewFile]);
 
-  const getFileIcon = (name: string): string => {
-    if (name.endsWith('.mdx') || name.endsWith('.md')) return '¶';
-    if (name.endsWith('.astro')) return '★';
-    if (name.endsWith('.css')) return '◈';
-    if (name.endsWith('.json')) return '{}';
-    if (name.endsWith('.ts') || name.endsWith('.js') || name.endsWith('.mjs')) return 'λ';
-    if (name.endsWith('.pdf')) return '⊞';
-    return '–';
-  };
+  const isEditable = (name: string) =>
+    /\.(mdx?|astro|css|json|ts|js|mjs|yaml|yml)$/.test(name);
 
-  const renderEntry = (entry: FileEntry, depth: number): React.ReactNode => {
+  const renderNode = (entry: FileEntry, depth: number) => {
+    const node = tree.get(entry.path);
+    if (!node) return null;
+
     if (entry.is_dir) {
-      const isExpanded = expandedDirs.has(entry.path);
-      const isContentDir = entry.name === 'content' || entry.name === 'notes' || entry.name === 'embedded' || entry.name === 'data';
       return (
         <div key={entry.path}>
           <div
-            className={`sidebar-item dir-item ${isContentDir ? 'content-dir' : ''}`}
-            style={{ paddingLeft: `${12 + depth * 16}px` }}
+            className="tree-item dir"
+            style={{ paddingLeft: 10 + depth * 14 }}
             onClick={() => toggleDir(entry.path)}
           >
-            <span className="dir-arrow">{isExpanded ? '▾' : '▸'}</span>
-            <span className="dir-name">{entry.name}</span>
+            <span className="tree-arrow">
+              {node.loading ? '⋯' : node.expanded ? '▾' : '▸'}
+            </span>
+            <span className="tree-name dir-name">{entry.name}</span>
           </div>
-          {isExpanded && entry.children.map(child => renderEntry(child, depth + 1))}
+          {node.expanded && node.children && node.children.map(child => renderNode(child, depth + 1))}
         </div>
       );
     }
 
-    const isSelected = entry.path === selectedFile;
-    const isEditable = entry.name.endsWith('.mdx') || entry.name.endsWith('.md') || entry.name.endsWith('.astro') || entry.name.endsWith('.css') || entry.name.endsWith('.json') || entry.name.endsWith('.ts') || entry.name.endsWith('.js');
+    const editable = isEditable(entry.name);
+    const selected = entry.path === selectedFile;
 
     return (
       <div
         key={entry.path}
-        className={`sidebar-item file-item ${isSelected ? 'selected' : ''} ${isEditable ? 'editable' : ''}`}
-        style={{ paddingLeft: `${12 + depth * 16 + 16}px` }}
-        onClick={() => isEditable && onSelectFile(entry.path)}
+        className={`tree-item file ${selected ? 'selected' : ''} ${editable ? 'editable' : ''}`}
+        style={{ paddingLeft: 10 + depth * 14 + 14 }}
+        onClick={() => editable && onSelectFile(entry.path)}
       >
-        <span className="file-icon">{getFileIcon(entry.name)}</span>
-        <span className="file-name">{entry.name}</span>
+        <span className="tree-name">{entry.name}</span>
       </div>
     );
   };
 
-  const projectName = projectDir.split('/').pop() || projectDir;
+  const rootNode = tree.get(projectDir);
+  const topEntries = rootNode?.children || [];
+
+  const projectName = projectDir.split('/').pop() || '';
 
   return (
     <div className="sidebar">
-      <div className="sidebar-header">
-        <span className="sidebar-project-name">{projectName}</span>
-        <div className="sidebar-header-actions">
-          <button className="sidebar-icon-btn" onClick={() => setShowNewFile(!showNewFile)} title="New File">+</button>
-          <button className="sidebar-icon-btn" onClick={onNewProject} title="Switch Project">↩</button>
+      <div className="sidebar-head">
+        <span className="sidebar-title">{projectName}</span>
+        <div className="sidebar-actions">
+          <button className="sbtn" onClick={() => setShowNewFile(!showNewFile)} title="新建文件">＋</button>
+          <button className="sbtn" onClick={onImportMd} title="导入 Markdown">↓</button>
+          <button className="sbtn" onClick={onNewProject} title="切换项目">⌂</button>
         </div>
       </div>
 
       {showNewFile && (
-        <div className="new-file-form">
+        <div className="new-file-box">
+          <select value={newCollection} onChange={e => setNewCollection(e.target.value)} className="new-file-select">
+            <option value="notes">notes (ML)</option>
+            <option value="embedded">embedded</option>
+          </select>
           <input
             className="new-file-input"
             type="text"
-            placeholder="filename (e.g. notes/my-note)"
-            value={newFilePath}
-            onChange={(e) => setNewFilePath(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleCreateFile()}
+            placeholder="文件名 (如 my-note)"
+            value={newFilename}
+            onChange={e => setNewFilename(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleCreateFile()}
             autoFocus
           />
-          <div className="new-file-actions">
-            <button className="new-file-btn" onClick={handleCreateFile}>Create</button>
-            <button className="new-file-btn cancel" onClick={() => { setShowNewFile(false); setNewFilePath(''); }}>Cancel</button>
+          <div className="new-file-btns">
+            <button className="nbtn primary" onClick={handleCreateFile}>创建</button>
+            <button className="nbtn" onClick={() => { setShowNewFile(false); setNewFilename(''); }}>取消</button>
           </div>
         </div>
       )}
 
-      <div className="sidebar-tree">
-        {files.map(entry => renderEntry(entry, 0))}
+      <div className="tree-scroll">
+        {topEntries.map(e => renderNode(e, 0))}
       </div>
     </div>
   );

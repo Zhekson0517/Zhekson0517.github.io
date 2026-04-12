@@ -1,16 +1,19 @@
+import './Editor.css';
+
 interface Props {
   content: string;
   onChange: (content: string) => void;
+  loading: boolean;
   hasFile: boolean;
 }
 
-function Editor({ content, onChange, hasFile }: Props) {
+function Editor({ content, onChange, loading, hasFile }: Props) {
   if (!hasFile) {
-    return (
-      <div className="editor-empty">
-        <p>Select a file to edit</p>
-      </div>
-    );
+    return <div className="editor-empty">选择文件开始编辑</div>;
+  }
+
+  if (loading) {
+    return <div className="editor-empty">加载中…</div>;
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -30,7 +33,7 @@ function Editor({ content, onChange, hasFile }: Props) {
   return (
     <div className="editor">
       <textarea
-        className="editor-textarea"
+        className="editor-ta"
         value={content}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
