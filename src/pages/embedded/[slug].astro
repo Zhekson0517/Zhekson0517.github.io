@@ -1,0 +1,67 @@
+---
+import NoteLayout from '../../layouts/NoteLayout.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const notes = await getCollection('embedded');
+  return notes.map(note => ({
+    params: { slug: note.data.slug },
+    props: { note },
+  }));
+}
+
+const { note } = Astro.props;
+const { Content, headings } = await render(note);
+
+const allNotes = (await getCollection('embedded'))
+  .sort((a, b) => a.data.chapter - b.data.chapter);
+
+const currentIndex = allNotes.findIndex(n => n.id === note.id);
+const prevNote = currentIndex > 0 ? allNotes[currentIndex - 1] : null;
+const nextNote = currentIndex < allNotes.length - 1 ? allNotes[currentIndex + 1] : null;
+
+const relatedNotes = allNotes
+  .filter(n => n.id !== note.id && n.data.tags.some(t => note.data.tags.includes(t)))
+  .slice(0, 3);
+---
+
+<NoteLayout
+  title={note.data.title}
+  description={note.data.abstract}
+  publishedAt={note.data.publishedAt}
+  updatedAt={note.data.updatedAt}
+  category={note.data.category}
+  tags={note.data.tags}
+  headings={headings}
+>
+  <div class="abstract">
+    <span class="abstract-label">Abstract</span>
+    <p>{note.data.abstract}</p>
+  </div>
+
+  <div class="article-body">
+    <Content />
+  </div>
+
+  {(prevNote || nextNote) && (
+    <nav class="note-nav">
+      {prevNote ? (
+        <a href={`/embedded/${prevNote.data.slug}`}>&larr; {prevNote.data.title}</a>
+      ) : <span></span>}
+      {nextNote ? (
+        <a href={`/embedded/${nextNote.data.slug}`} class="note-nav-next">{nextNote.data.title} &rarr;</a>
+      ) : <span></span>}
+    </nav>
+  )}
+
+  {relatedNotes.length > 0 && (
+    <div class="related-notes">
+      <h3>Related Chapters</h3>
+      <ul>
+        {relatedNotes.map(n => (
+          <li><a href={`/embedded/${n.data.slug}`}>{n.data.title}</a></li>
+        ))}
+      </ul>
+    </div>
+  )}
+</NoteLayout>

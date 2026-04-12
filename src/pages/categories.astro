@@ -2,7 +2,27 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
-const allNotes = await getCollection('notes');
+type NoteLike = {
+  data: {
+    title: string;
+    slug: string;
+    publishedAt: string;
+    category: string;
+    tags: string[];
+    abstract: string;
+  };
+  collection: string;
+};
+
+const mlNotes = (await getCollection('notes')) as NoteLike[];
+const embeddedNotes = (await getCollection('embedded')) as NoteLike[];
+
+const allNotes = [...mlNotes, ...embeddedNotes];
+
+function getHref(note: NoteLike) {
+  return note.collection === 'embedded' ? `/embedded/${note.data.slug}` : `/ml/${note.data.slug}`;
+}
+
 const categoryMap: Record<string, number> = {};
 allNotes.forEach(note => {
   categoryMap[note.data.category] = (categoryMap[note.data.category] || 0) + 1;
@@ -36,7 +56,7 @@ const filteredNotes = activeCategory
         <h2>Notes in "{activeCategory}"</h2>
         {filteredNotes.map(note => (
           <div class="archive-item">
-            <a href={`/ml/${note.data.slug}`}>{note.data.title}</a>
+            <a href={getHref(note)}>{note.data.title}</a>
             <span class="archive-item-date">{note.data.publishedAt}</span>
           </div>
         ))}

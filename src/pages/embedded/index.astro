@@ -1,0 +1,136 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allNotes = (await getCollection('embedded'))
+  .sort((a, b) => a.data.chapter - b.data.chapter);
+
+const categories = [...new Set(allNotes.map(n => n.data.category))];
+---
+
+<BaseLayout title="Embedded Systems" description="Embedded systems notes covering hardware fundamentals, circuit design, and microcontroller programming.">
+  <section class="fade-in">
+    <h1 class="section-title">Embedded Systems</h1>
+    <p style="text-indent:0; margin-bottom:1.5em; color:var(--color-secondary); font-family:var(--font-sans); font-size:var(--font-size-body);">
+      嵌入式系统笔记，涵盖硬件基础、电路设计、微控制器编程等核心知识。
+    </p>
+
+    {categories.map(cat => {
+      const catNotes = allNotes.filter(n => n.data.category === cat);
+      return (
+        <div class="category-group">
+          <h3 class="category-heading">{cat}</h3>
+          <div class="chapter-list">
+            {catNotes.map(note => (
+              <a href={`/embedded/${note.data.slug}`} class="chapter-card fade-in">
+                <div class="chapter-number">Ch{note.data.chapter}</div>
+                <div class="chapter-info">
+                  <div class="chapter-title">{note.data.title.replace(/^Ch\d+\.\s*/, '')}</div>
+                  <div class="chapter-abstract">{note.data.abstract}</div>
+                  <div class="chapter-tags">
+                    {note.data.tags.slice(0, 4).map((tag: string) => (
+                      <span class="tag">{tag}</span>
+                    ))}
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      );
+    })}
+  </section>
+</BaseLayout>
+
+<style>
+  .category-heading {
+    font-family: var(--font-sans);
+    font-size: var(--font-size-h3);
+    color: var(--color-heading);
+    margin-bottom: 0.8em;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .chapter-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8em;
+    margin-bottom: 2em;
+  }
+
+  .chapter-card {
+    display: flex;
+    gap: 1.2em;
+    padding: 1em 1.2em;
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+    text-decoration: none;
+    transition: all var(--transition-normal);
+    cursor: pointer;
+  }
+
+  .chapter-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--color-card-shadow-hover);
+    border-color: var(--color-accent);
+  }
+
+  .chapter-number {
+    font-family: var(--font-sans);
+    font-size: 14pt;
+    font-weight: 700;
+    color: var(--color-accent);
+    min-width: 3em;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 0.1em;
+  }
+
+  .chapter-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .chapter-title {
+    font-family: var(--font-sans);
+    font-size: 13pt;
+    font-weight: 600;
+    color: var(--color-heading);
+    margin-bottom: 0.3em;
+    transition: color var(--transition-fast);
+  }
+
+  .chapter-card:hover .chapter-title {
+    color: var(--color-accent);
+  }
+
+  .chapter-abstract {
+    font-size: var(--font-size-small);
+    color: var(--color-secondary);
+    line-height: 1.5;
+    margin-bottom: 0.5em;
+    text-indent: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .chapter-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3em;
+  }
+
+  @media (max-width: 768px) {
+    .chapter-card {
+      flex-direction: column;
+      gap: 0.5em;
+    }
+
+    .chapter-number {
+      min-width: auto;
+    }
+  }
+</style>

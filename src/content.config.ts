@@ -16,4 +16,19 @@ const notes = defineCollection({
   }),
 });
 
-export const collections = { notes };
+const embedded = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/embedded' }),
+  schema: z.object({
+    title: z.string(),
+    chapter: z.number(),
+    slug: z.string(),
+    publishedAt: z.string(),
+    updatedAt: z.string(),
+    category: z.string(),
+    tags: z.array(z.string()),
+    abstract: z.string(),
+    keywords: z.array(z.string()),
+  }),
+});
+
+export const collections = { notes, embedded };
