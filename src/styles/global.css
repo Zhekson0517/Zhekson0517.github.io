@@ -1,8 +1,8 @@
 @import url('https://cdn.jsdelivr.net/gh/dreampulse/computer-modern-web-font@master/fonts.css');
 
 :root {
-  --font-serif: 'Computer Modern Roman', 'CMU Serif', Georgia, 'Times New Roman', serif;
-  --font-sans: 'Computer Modern Sans', 'CMU Sans Serif', Helvetica, Arial, sans-serif;
+  --font-serif: 'Computer Modern Roman', 'CMU Serif', 'Noto Serif SC', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Computer Modern Sans', 'CMU Sans Serif', 'Noto Serif SC', Helvetica, Arial, sans-serif;
   --font-mono: 'Computer Modern Typewriter', 'CMU Typewriter Text', 'Courier New', monospace;
 
   --color-bg: #ffffff;

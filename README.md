@@ -1,6 +1,6 @@
 # Academic Blog — LaTeX Style with Astro 5.x
 
-A personal academic blog built with Astro 5.x, featuring LaTeX-style typography with Computer Modern fonts, KaTeX math rendering, and 13 built-in machine learning notes organized as chapters. Deploy to GitHub Pages with zero configuration.
+A personal academic blog built with Astro 5.x, featuring LaTeX-style typography with Computer Modern + Noto Serif SC fonts, KaTeX math rendering, and 14 built-in machine learning notes organized as chapters. Deploy to GitHub Pages with zero configuration.
 
 ## Quick Start
 
@@ -34,11 +34,11 @@ Create a `.mdx` file in `src/content/notes/`:
 
 ```mdx
 ---
-title: "Ch14. Your Note Title"
-chapter: 14
-slug: "ch14-your-note-slug"
-publishedAt: "2025-04-12"
-updatedAt: "2025-04-12"
+title: "Ch15. Your Note Title"
+chapter: 15
+slug: "ch15-your-note-slug"
+publishedAt: "2026-04-12"
+updatedAt: "2026-04-12"
 category: "Machine Learning"
 tags: ["tag1", "tag2"]
 abstract: "A brief summary of the note content."
@@ -59,7 +59,7 @@ $$
 - **Personal info**: Edit `src/pages/index.astro` and `src/pages/about.astro`
 - **Navigation**: Edit `src/components/Header.astro`
 - **Footer**: Edit `src/components/Footer.astro`
-- **Fonts**: Computer Modern loaded via CDN in `src/styles/global.css`
+- **Fonts**: Computer Modern + Noto Serif SC loaded via CDN in `src/styles/global.css` and `BaseLayout.astro`
 - **Colors**: CSS custom properties in `src/styles/global.css`
 - **Dark mode**: Toggle via ☾/☀ button, persisted in localStorage
 
@@ -69,7 +69,7 @@ $$
 |---|---|
 | Framework | Astro 5.x (static output) |
 | Content | Content Collections + MDX |
-| Fonts | Computer Modern (CDN + fallback) |
+| Fonts | Computer Modern (CDN) + Noto Serif SC (Google Fonts) |
 | Math | remark-math + rehype-katex |
 | Code | Shiki dual-theme (github-light / github-dark) |
 | Deploy | GitHub Actions → GitHub Pages |
@@ -80,7 +80,7 @@ $$
 
 ```
 /                   Home page with hero + latest chapters
-/ml                 Machine Learning chapter index (Ch1–Ch13)
+/ml                 Machine Learning chapter index (Ch1–Ch14)
 /ml/ch1-...         Individual chapter detail pages
 /archive            Timeline archive by year/month
 /tags               Tag cloud with filtering
@@ -107,6 +107,7 @@ $$
 | 11 | Neural Network Fundamentals | Deep Learning |
 | 12 | Convolutional Neural Networks | Deep Learning |
 | 13 | Recurrent Neural Networks and LSTM | Deep Learning |
+| 14 | Transformer 与注意力机制 | Deep Learning |
 
 ## Troubleshooting
 
@@ -115,6 +116,12 @@ $$
 - **Build errors**: Ensure Node.js >= 18.14.1
 
 ## Changelog
+
+### v1.3.0 (2026-04-12)
+
+- Added Ch14: Transformer 与注意力机制 (Chinese content test)
+- Added Noto Serif SC font for Chinese heading/body rendering
+- Widened content area from 800px to 960px
 
 ### v1.2.0 (2026-04-12)
 

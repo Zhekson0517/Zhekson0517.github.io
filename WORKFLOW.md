@@ -19,8 +19,8 @@
 | 数学公式 | remark-math + rehype-katex | ^6.0.0 / ^7.0.0 |
 | 站点地图 | @astrojs/sitemap | ^3.2.0 |
 | RSS | @astrojs/rss | ^4.0.0 |
-| 代码高亮 | Shiki（Astro 内置） | — |
-| 评论 | Giscus（GitHub Discussions） | — |
+| 代码高亮 | Shiki 双主题（github-light / github-dark） | Astro 内置 |
+| 中文字体 | Noto Serif SC (Google Fonts) | — |
 
 ## 三、目录结构
 
@@ -41,17 +41,17 @@ src/
 │       ├── model-evaluation.mdx
 │       ├── neural-networks.mdx
 │       ├── cnn.mdx
-│       └── rnn-lstm.mdx
+│       ├── rnn-lstm.mdx
+│       └── transformer-attention.mdx
 ├── layouts/
-│   ├── BaseLayout.astro       # 全局基础布局（导航+页脚+样式+暗模式）
-│   └── NoteLayout.astro       # 笔记详情页布局（TOC+摘要+上下篇+评论）
+│   ├── BaseLayout.astro       # 全局基础布局（导航+页脚+样式+暗模式+字体CDN）
+│   └── NoteLayout.astro       # 笔记详情页布局（TOC+摘要+上下篇）
 ├── components/
-│   ├── Header.astro           # 导航栏
+│   ├── Header.astro           # 导航栏（含 Machine Learning 链接）
 │   ├── Footer.astro           # 页脚
 │   ├── NoteCard.astro         # 笔记卡片（列表页用）
 │   ├── TOC.astro              # 目录侧边栏（滚动跟随高亮）
-│   ├── ThemeToggle.astro      # 明暗主题切换按钮
-│   └── Giscus.astro           # 评论组件
+│   └── ThemeToggle.astro      # 明暗主题切换按钮
 ├── pages/
 │   ├── index.astro            # 首页（个人学术主页）
 │   ├── about.astro            # 关于页
@@ -60,9 +60,9 @@ src/
 │   ├── categories.astro       # 分类聚合页
 │   ├── 404.astro              # 404 页
 │   ├── rss.xml.js             # RSS 订阅
-│   └── notes/
-│       ├── index.astro        # 笔记列表页（搜索+筛选+分页）
-│       └── [slug].astro       # 笔记详情页（动态路由）
+│   └── ml/
+│       ├── index.astro        # ML 章节总览页（按分类分组展示）
+│       └── [slug].astro       # 章节详情页（动态路由，slug 来自 frontmatter）
 └── styles/
     ├── global.css             # 全局样式（字体+排版+动画+暗模式+打印）
     └── latex-theme.css        # LaTeX 风格专属样式
@@ -72,24 +72,31 @@ src/
 
 ### 1. 创建 MDX 文件
 
-在 `src/content/notes/` 下新建 `.mdx` 文件，文件名即为 URL slug（使用小写字母+连字符）。
+在 `src/content/notes/` 下新建 `.mdx` 文件，文件名建议与 slug 保持一致。
 
-**示例**: 新增一篇 Transformer 笔记 → 创建 `src/content/notes/transformer.mdx`
+**示例**: 新增 Ch15 → 创建 `src/content/notes/generative-models.mdx`
 
 ### 2. Frontmatter 规范（必填，严格遵循）
 
 ```yaml
 ---
-title: "Transformer Architecture"           # 学术风格标题
-slug: "transformer"                          # URL 标识，小写+连字符（与文件名一致）
-publishedAt: "2025-04-12"                    # 发布日期 YYYY-MM-DD
-updatedAt: "2025-04-12"                      # 更新日期 YYYY-MM-DD
-category: "Deep Learning"                    # 分类（现有：Mathematics / Machine Learning / Deep Learning）
-tags: ["transformer", "attention", "NLP", "deep learning"]  # 标签数组
-abstract: "A comprehensive study of the Transformer architecture covering self-attention, multi-head attention, positional encoding, and training strategies."  # 摘要
-keywords: ["transformer", "self-attention", "positional encoding"]  # 关键词
+title: "Ch15. Generative Models"             # 必须以 ChN. 开头
+chapter: 15                                   # 章节编号，整数
+slug: "ch15-generative-models"                # URL 标识，格式 chN-名称
+publishedAt: "2026-04-12"                     # 发布日期 YYYY-MM-DD
+updatedAt: "2026-04-12"                       # 更新日期 YYYY-MM-DD
+category: "Deep Learning"                     # 分类（现有：Mathematics / Machine Learning / Deep Learning）
+tags: ["generative models", "VAE", "GAN", "deep learning"]  # 标签数组
+abstract: "A comprehensive study of generative models covering VAE, GAN, and diffusion models."  # 摘要
+keywords: ["VAE", "GAN", "diffusion", "generative"]  # 关键词
 ---
 ```
+
+**⚠️ 关键规则**:
+- `chapter` 必须是整数，且不能与现有章节重复
+- `slug` 格式必须为 `chN-xxx`，这决定了 URL 路径 `/ml/chN-xxx/`
+- `title` 必须以 `ChN.` 开头
+- `category` 必须是 `Mathematics`、`Machine Learning` 或 `Deep Learning` 之一（或新增分类）
 
 ### 3. 正文结构规范
 
@@ -148,6 +155,10 @@ import numpy as np
 ```
 ````
 
+### 6. 中文内容
+
+项目支持中文内容。中文标题和正文会自动使用 Noto Serif SC 字体渲染。示例：Ch14「Transformer 与注意力机制」即为全中文笔记。
+
 ## 五、关键配置文件说明
 
 ### astro.config.mjs
@@ -167,12 +178,20 @@ export default defineConfig({
   markdown: {
     remarkPlugins: [remarkMath],            // 数学公式解析
     rehypePlugins: [rehypeKatex],           // KaTeX 渲染
-    shikiConfig: { theme: 'github-light', wrap: true },
+    shikiConfig: {
+      themes: {
+        light: 'github-light',              // 亮色主题
+        dark: 'github-dark',                // 暗色主题
+      },
+      wrap: true,
+    },
   },
 });
 ```
 
-**⚠️ 注意**: `remarkPlugins` 和 `rehypePlugins` 必须使用显式 `import` 导入，不能写字符串如 `'remark-math'`，否则 MDX 集成会报警告且公式不渲染。
+**⚠️ 注意**:
+- `remarkPlugins` 和 `rehypePlugins` 必须使用显式 `import` 导入，不能写字符串如 `'remark-math'`，否则 MDX 集成会报警告且公式不渲染
+- Shiki 使用双主题模式，亮色用 inline `color` 样式，暗色用 `--shiki-dark` CSS 变量，通过 `[data-theme="dark"]` 选择器切换
 
 ### src/content.config.ts
 
@@ -184,6 +203,8 @@ const notes = defineCollection({
   loader: glob({ pattern: '**/*.mdx', base: './src/content/notes' }),
   schema: z.object({
     title: z.string(),
+    chapter: z.number(),
+    slug: z.string(),
     publishedAt: z.string(),
     updatedAt: z.string(),
     category: z.string(),
@@ -211,9 +232,11 @@ export const collections = { notes };
 
 | 用途 | 字体 | CSS 变量 |
 |---|---|---|
-| 正文 | Computer Modern Roman | `--font-serif` |
-| 标题/导航 | Computer Modern Sans | `--font-sans` |
-| 代码 | Computer Modern Typewriter | `--font-mono` |
+| 正文 | Computer Modern Roman → Noto Serif SC → Georgia → Times New Roman | `--font-serif` |
+| 标题/导航 | Computer Modern Sans → Noto Serif SC → Helvetica → Arial | `--font-sans` |
+| 代码 | Computer Modern Typewriter → Courier New | `--font-mono` |
+
+**中文字体说明**: Noto Serif SC（思源宋体）通过 Google Fonts CDN 加载，在 `BaseLayout.astro` 中引入。当 Computer Modern 字体不包含中文字符时，浏览器自动回退到 Noto Serif SC，确保中文标题和正文均使用宋体渲染，符合中文学术排版规范。
 
 ### 配色
 
@@ -223,13 +246,21 @@ export const collections = { notes };
 | 正文 | `#121212` | `#f0f0f0` |
 | 标题 | `#000000` | `#ffffff` |
 | 强调色 | `#003366` | `#6699cc` |
+| 代码背景 | `#f5f5f5` | `#1a1a1a` |
 
 ### 排版规范
 
 - 正文 12pt，行高 1.6
-- 内容区最大宽度 800px
+- 内容区最大宽度 960px
 - 段首缩进 2em（CSS 变量 `--indent-paragraph`）
 - 摘要区使用 `.abstract` 类（居中、缩进、Abstract 标签）
+
+### 代码高亮
+
+- Shiki 双主题：亮色 `github-light`，暗色 `github-dark`
+- 亮色模式：Shiki 直接输出 inline `color` 样式，无需 CSS 覆盖
+- 暗色模式：通过 `[data-theme="dark"] .astro-code span { color: var(--shiki-dark) !important; }` 切换
+- **⚠️ 不要使用 `--shiki-light` CSS 变量**，Shiki 双主题输出中不存在此变量，使用会导致高亮丢失
 
 ## 七、部署流程
 
@@ -239,7 +270,7 @@ npm run build   # 确保零错误
 
 # 2. 提交推送
 git add .
-git commit -m "Add new note: transformer"
+git commit -m "Add new note: ch15-generative-models"
 git push origin main
 
 # 3. GitHub Actions 自动构建部署（约 1-2 分钟）
@@ -256,6 +287,9 @@ git push origin main
 | npm install 慢 | 国内网络 | `npm config set registry https://registry.npmmirror.com` |
 | SSL 证书错误 | 代理/网络问题 | 用 SSH 方式: `git remote set-url origin git@github.com:...` |
 | 暗模式代码块不适配 | Shiki 主题固定 | 需要在 `[data-theme="dark"]` 下覆盖 `.astro-code` 样式 |
+| 代码高亮全部丢失 | CSS 使用了不存在的 `--shiki-light` 变量 | 亮色模式不要覆盖，让 Shiki inline 样式生效 |
+| 中文标题字体丑 | Computer Modern Sans 无中文，回退到 Helvetica | 已添加 Noto Serif SC 到字体栈 |
+| Giscus 报错 | 未在仓库安装 Giscus | 已移除 Giscus 组件，如需评论功能需重新配置 |
 
 ## 九、个人信息修改清单
 
@@ -268,6 +302,5 @@ git push origin main
 | 导航栏标题 | `src/components/Header.astro` |
 | 页脚版权 | `src/components/Footer.astro` |
 | GitHub 链接 | `Header.astro`, `Footer.astro`, `about.astro`, `index.astro` |
-| Giscus 评论 | `src/components/Giscus.astro`（需填 `data-repo-id` 和 `data-category-id`） |
 | RSS 标题/描述 | `src/pages/rss.xml.js` |
 | 站点 URL | `astro.config.mjs` 的 `site` 字段 |
