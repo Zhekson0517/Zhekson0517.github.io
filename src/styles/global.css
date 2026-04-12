@@ -23,9 +23,9 @@
 
   --content-width: 960px;
   --font-size-body: 12pt;
-  --font-size-h1: 20pt;
+  --font-size-h1: 24pt;
   --font-size-h2: 18pt;
-  --font-size-h3: 16pt;
+  --font-size-h3: 15pt;
   --font-size-small: 10pt;
   --font-size-code: 11pt;
   --line-height-body: 1.6;
@@ -502,9 +502,9 @@ img {
 @media (max-width: 768px) {
   :root {
     --font-size-body: 11pt;
-    --font-size-h1: 18pt;
+    --font-size-h1: 22pt;
     --font-size-h2: 16pt;
-    --font-size-h3: 14pt;
+    --font-size-h3: 13pt;
   }
 
   .nav-inner {
