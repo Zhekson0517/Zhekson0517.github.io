@@ -1,9 +1,0 @@
-/Users/zhe/Documents/trae_projects/astro-blog-manager/src-tauri/target/release/deps/serde_spanned-a01db6dd5ae08620.d: /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde_spanned-1.1.1/src/lib.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde_spanned-1.1.1/src/spanned.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde_spanned-1.1.1/src/de.rs
-
-/Users/zhe/Documents/trae_projects/astro-blog-manager/src-tauri/target/release/deps/libserde_spanned-a01db6dd5ae08620.rlib: /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde_spanned-1.1.1/src/lib.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde_spanned-1.1.1/src/spanned.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde_spanned-1.1.1/src/de.rs
-
-/Users/zhe/Documents/trae_projects/astro-blog-manager/src-tauri/target/release/deps/libserde_spanned-a01db6dd5ae08620.rmeta: /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde_spanned-1.1.1/src/lib.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde_spanned-1.1.1/src/spanned.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde_spanned-1.1.1/src/de.rs
-
-/Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde_spanned-1.1.1/src/lib.rs:
-/Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde_spanned-1.1.1/src/spanned.rs:
-/Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde_spanned-1.1.1/src/de.rs:

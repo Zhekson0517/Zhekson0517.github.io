@@ -8,9 +8,10 @@ import '../styles/latex-theme.css';
 interface Props {
   title: string;
   description?: string;
+  needsKatex?: boolean;
 }
 
-const { title, description = 'Personal academic blog focusing on machine learning and systems.' } = Astro.props;
+const { title, description = 'Personal academic blog focusing on machine learning and systems.', needsKatex = false } = Astro.props;
 ---
 
 <!DOCTYPE html>
@@ -25,8 +26,11 @@ const { title, description = 'Personal academic blog focusing on machine learnin
     <meta property="og:type" content="website" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dreampulse/computer-modern-web-font@master/fonts.css" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dreampulse/computer-modern-web-font@master/fonts.css" /></noscript>
+    {needsKatex && <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />}
     <script is:inline>
       (function() {
         var saved = localStorage.getItem('theme');

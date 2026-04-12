@@ -2,34 +2,61 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import films from '../data/films.json';
 
-const sortedByYear = [...films].sort((a, b) => a.year - b.year);
+const watched = films
+  .filter(f => f.watchedAt)
+  .sort((a, b) => new Date(b.watchedAt).getTime() - new Date(a.watchedAt).getTime());
 
-const decades = [...new Set(sortedByYear.map(f => Math.floor(f.year / 10) * 10))];
+const unwatched = films.filter(f => !f.watchedAt);
+
+function getMonthKey(dateStr: string): string {
+  const d = new Date(dateStr);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function formatMonth(key: string): string {
+  const [y, m] = key.split('-');
+  return `${y} 年 ${parseInt(m)} 月`;
+}
+
+const monthKeys = [...new Set(watched.map(f => getMonthKey(f.watchedAt)))];
+
+const grouped: Record<string, typeof watched> = {};
+watched.forEach(f => {
+  const key = getMonthKey(f.watchedAt);
+  if (!grouped[key]) grouped[key] = [];
+  grouped[key].push(f);
+});
+
+const totalCount = films.length;
+const watchedCount = watched.length;
 ---
 
-<BaseLayout title="Film" description="Film collection — 豆瓣 Top 50 电影时间线。">
+<BaseLayout title="Film" description="Film collection — 观影记录时间线。">
   <section class="fade-in">
     <h1 class="section-title">Film</h1>
     <p class="film-intro">
-      电影时间线，按年代排列。数据来源：豆瓣电影 Top 250。
+      观影记录，按观看时间排列。已看 {watchedCount} / {totalCount} 部。
     </p>
 
-    <div class="decade-nav">
-      {decades.map(d => (
-        <a href={`#decade-${d}`} class="decade-link">{d}s</a>
+    <div class="month-nav">
+      {monthKeys.map(key => (
+        <a href={`#month-${key}`} class="month-link">{formatMonth(key)}</a>
       ))}
+      {unwatched.length > 0 && (
+        <a href="#unwatched" class="month-link month-link--unwatched">待看 ({unwatched.length})</a>
+      )}
     </div>
 
     <div class="timeline">
-      {decades.map(decade => {
-        const decadeFilms = sortedByYear.filter(f => Math.floor(f.year / 10) * 10 === decade);
+      {monthKeys.map(key => {
+        const monthFilms = grouped[key];
         return (
-          <div class="decade-group" id={`decade-${decade}`}>
-            <div class="decade-marker">{decade}s</div>
-            <div class="decade-films">
-              {decadeFilms.map(film => (
+          <div class="month-group" id={`month-${key}`}>
+            <div class="month-marker">{formatMonth(key)}</div>
+            <div class="month-films">
+              {monthFilms.map(film => (
                 <div class="film-card fade-in">
-                  <div class="film-rank">#{film.rank}</div>
+                  <div class="film-watched-date">{film.watchedAt.slice(5)}</div>
                   <div class="film-body">
                     <div class="film-title-row">
                       <span class="film-title">{film.title}</span>
@@ -55,6 +82,38 @@ const decades = [...new Set(sortedByYear.map(f => Math.floor(f.year / 10) * 10))
           </div>
         );
       })}
+
+      {unwatched.length > 0 && (
+        <div class="month-group month-group--unwatched" id="unwatched">
+          <div class="month-marker month-marker--unwatched">待看</div>
+          <div class="month-films">
+            {unwatched.map(film => (
+              <div class="film-card film-card--unwatched fade-in">
+                <div class="film-rank">#{film.rank}</div>
+                <div class="film-body">
+                  <div class="film-title-row">
+                    <span class="film-title">{film.title}</span>
+                    <span class="film-title-en">{film.titleEn}</span>
+                  </div>
+                  <div class="film-meta">
+                    <span class="film-year">{film.year}</span>
+                    <span class="film-sep">·</span>
+                    <span class="film-director">{film.director}</span>
+                    <span class="film-sep">·</span>
+                    <span class="film-country">{film.country}</span>
+                  </div>
+                  <div class="film-genre">{film.genre}</div>
+                  <div class="film-quote">「{film.quote}」</div>
+                  <div class="film-rating">
+                    <span class="rating-star">★</span>
+                    <span class="rating-score">{film.rating}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   </section>
 </BaseLayout>
@@ -68,7 +127,7 @@ const decades = [...new Set(sortedByYear.map(f => Math.floor(f.year / 10) * 10))
     font-size: var(--font-size-body);
   }
 
-  .decade-nav {
+  .month-nav {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5em;
@@ -77,7 +136,7 @@ const decades = [...new Set(sortedByYear.map(f => Math.floor(f.year / 10) * 10))
     border-bottom: 1px solid var(--color-border);
   }
 
-  .decade-link {
+  .month-link {
     font-family: var(--font-sans);
     font-size: var(--font-size-small);
     padding: 0.3em 0.8em;
@@ -86,12 +145,17 @@ const decades = [...new Set(sortedByYear.map(f => Math.floor(f.year / 10) * 10))
     color: var(--color-secondary);
     text-decoration: none;
     transition: all var(--transition-fast);
+    white-space: nowrap;
   }
 
-  .decade-link:hover {
+  .month-link:hover {
     color: var(--color-accent);
     border-color: var(--color-accent);
     background: var(--color-tag-bg);
+  }
+
+  .month-link--unwatched {
+    border-style: dashed;
   }
 
   .timeline {
@@ -109,12 +173,12 @@ const decades = [...new Set(sortedByYear.map(f => Math.floor(f.year / 10) * 10))
     background: var(--color-border);
   }
 
-  .decade-group {
+  .month-group {
     margin-bottom: 2.5em;
     position: relative;
   }
 
-  .decade-marker {
+  .month-marker {
     font-family: var(--font-sans);
     font-size: 18pt;
     font-weight: 700;
@@ -123,7 +187,7 @@ const decades = [...new Set(sortedByYear.map(f => Math.floor(f.year / 10) * 10))
     position: relative;
   }
 
-  .decade-marker::before {
+  .month-marker::before {
     content: '';
     position: absolute;
     left: -2.1em;
@@ -137,7 +201,16 @@ const decades = [...new Set(sortedByYear.map(f => Math.floor(f.year / 10) * 10))
     box-shadow: 0 0 0 2px var(--color-accent);
   }
 
-  .decade-films {
+  .month-marker--unwatched {
+    color: var(--color-secondary);
+  }
+
+  .month-marker--unwatched::before {
+    background: var(--color-secondary);
+    box-shadow: 0 0 0 2px var(--color-secondary);
+  }
+
+  .month-films {
     display: flex;
     flex-direction: column;
     gap: 0.6em;
@@ -174,6 +247,26 @@ const decades = [...new Set(sortedByYear.map(f => Math.floor(f.year / 10) * 10))
 
   .film-card:hover::before {
     background: var(--color-accent);
+  }
+
+  .film-card--unwatched {
+    opacity: 0.6;
+    border-style: dashed;
+  }
+
+  .film-card--unwatched:hover {
+    opacity: 0.85;
+  }
+
+  .film-watched-date {
+    font-family: var(--font-mono);
+    font-size: 11pt;
+    font-weight: 600;
+    color: var(--color-accent);
+    min-width: 2.5em;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 0.1em;
   }
 
   .film-rank {
@@ -268,7 +361,7 @@ const decades = [...new Set(sortedByYear.map(f => Math.floor(f.year / 10) * 10))
       left: 0.5em;
     }
 
-    .decade-marker::before {
+    .month-marker::before {
       left: -1.7em;
     }
 
@@ -281,6 +374,7 @@ const decades = [...new Set(sortedByYear.map(f => Math.floor(f.year / 10) * 10))
       gap: 0.3em;
     }
 
+    .film-watched-date,
     .film-rank {
       min-width: auto;
       font-size: 12pt;

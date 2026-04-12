@@ -18,3 +18,6 @@ Thumbs.db
 # ide
 .vscode/
 .idea/
+
+# tauri app (deleted)
+astro-blog-manager/

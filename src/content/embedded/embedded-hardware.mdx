@@ -46,11 +46,11 @@ keywords: ["embedded", "hardware", "transistor", "MOSFET", "OC gate", "push-pull
 
 三态门主要用于总线的连接，因为总线在一个时间内只会有一个设备有效，其他设备处于高阻态，相当于没有接在总线上，不影响其它器件的工作。
 
-![三态门](/images/ch1-embedded-hardware/image.png)
+![三态门](/images/ch1-embedded-hardware/image.webp)
 
 **逻辑符号如下**
 
-![三态门逻辑符号](/images/ch1-embedded-hardware/image-1.png)
+![三态门逻辑符号](/images/ch1-embedded-hardware/image-1.webp)
 
 ### 上下拉电阻
 
@@ -61,11 +61,11 @@ keywords: ["embedded", "hardware", "transistor", "MOSFET", "OC gate", "push-pull
 - 片选信号（Chip Select，简称 CS）是一种**控制信号**，用于在多个芯片（如存储器、I/O 设备等）中选择特定芯片进行读写操作
 - 当片选信号为低电平（有效）的时候，芯片被激活
 
-![片选信号与三态门](/images/ch1-embedded-hardware/image-2.png)
+![片选信号与三态门](/images/ch1-embedded-hardware/image-2.webp)
 
 但是我们可以用辅助元件驱动其高低，添加上/下拉电阻
 
-![上下拉电阻](/images/ch1-embedded-hardware/image-3.png)
+![上下拉电阻](/images/ch1-embedded-hardware/image-3.webp)
 
 > 注意不是上下拉电阻要同时使用，图片只是为了演示；上拉电阻上面要接Vcc
 
@@ -79,7 +79,7 @@ keywords: ["embedded", "hardware", "transistor", "MOSFET", "OC gate", "push-pull
 - 当引脚无器件主动驱动（高阻抗态）时，电流从引脚经电阻流向地，将引脚电平**钳位为低电平**
 - 若有器件主动输出高电平，器件驱动能力强于电阻，引脚会被拉高，电阻不影响正常逻辑。
 
-![上拉电阻按键电路](/images/ch1-embedded-hardware/image-4.png)
+![上拉电阻按键电路](/images/ch1-embedded-hardware/image-4.webp)
 
 - **按键未按下**：R1 将公共节点拉至 VCC 电平，MCU 输入引脚检测到高电平。
     - 由于MCU 输入引脚的高阻特性（输入电流极小），R1 上的压降几乎可以忽略，因此公共节点的电平几乎等于 VCC，MCU 输入引脚检测到高电平。
@@ -90,7 +90,7 @@ keywords: ["embedded", "hardware", "transistor", "MOSFET", "OC gate", "push-pull
 
 电容的符号
 
-![电容符号](/images/ch1-embedded-hardware/image-5.png)
+![电容符号](/images/ch1-embedded-hardware/image-5.webp)
 
 电容的作用有如下
 
@@ -110,11 +110,11 @@ keywords: ["embedded", "hardware", "transistor", "MOSFET", "OC gate", "push-pull
 
 > 💡 最好不用电解电容
 
-![退耦电容布局问题](/images/ch1-embedded-hardware/image-6.png)
+![退耦电容布局问题](/images/ch1-embedded-hardware/image-6.webp)
 
 - 去耦电容未靠近 IC 的电源（Vcc）和地（GND）引脚，布线环路长
 
-![退耦电容阵列](/images/ch1-embedded-hardware/image-7.png)
+![退耦电容阵列](/images/ch1-embedded-hardware/image-7.webp)
 
 - 多只电容（CAP）并联在电源（VCC）和地（GND）之间，形成阵列式去耦结构
 - 电容对高频噪声低阻抗，会让高频干扰电流优先通过电容 "短路" 到地，从而从电源总线中被滤除
@@ -124,7 +124,7 @@ keywords: ["embedded", "hardware", "transistor", "MOSFET", "OC gate", "push-pull
 
 在电路中起到滤波抗干扰的作用，主要将输入信号中的高频噪声作为滤除对象
 
-![旁路电容](/images/ch1-embedded-hardware/image-8.png)
+![旁路电容](/images/ch1-embedded-hardware/image-8.webp)
 
 ## 晶体管
 
@@ -132,7 +132,7 @@ keywords: ["embedded", "hardware", "transistor", "MOSFET", "OC gate", "push-pull
 
 ### 二极管
 
-![二极管](/images/ch1-embedded-hardware/image-9.png)
+![二极管](/images/ch1-embedded-hardware/image-9.webp)
 
 - 单向导电特性
 
@@ -140,11 +140,11 @@ keywords: ["embedded", "hardware", "transistor", "MOSFET", "OC gate", "push-pull
 
 三极管有两种NPN型和PNP型
 
-![NPN和PNP型三极管](/images/ch1-embedded-hardware/image-10.png)
+![NPN和PNP型三极管](/images/ch1-embedded-hardware/image-10.webp)
 
 三极管用于将弱信号放大为强信号
 
-![三极管放大电路](/images/ch1-embedded-hardware/image-11.png)
+![三极管放大电路](/images/ch1-embedded-hardware/image-11.webp)
 
 - 截止时，CE两级间不导通
 - 处于放大时，B的电流变大，C极的电流也会跟着变大
@@ -152,7 +152,7 @@ keywords: ["embedded", "hardware", "transistor", "MOSFET", "OC gate", "push-pull
 
 可以利用三极管来控制驱动蜂鸣器电路
 
-![三极管驱动蜂鸣器](/images/ch1-embedded-hardware/image-12.png)
+![三极管驱动蜂鸣器](/images/ch1-embedded-hardware/image-12.webp)
 
 ### 场效应管FET
 
@@ -162,7 +162,7 @@ MOS管是利用控制输入回路的电场效应来控制输出回路电流的�
 
 场效应管通过栅极电压$V_{GS}$来控制漏级电流$I_D$，只允许从信号源取较少电流的情况下，应选用场效应管
 
-![场效应管](/images/ch1-embedded-hardware/image-13.png)
+![场效应管](/images/ch1-embedded-hardware/image-13.webp)
 
 ### MOS管
 
@@ -178,7 +178,7 @@ mos管是场效应管的一种，故叫MOSFET，
 
 结构如下
 
-![MOS管结构](/images/ch1-embedded-hardware/image-14.png)
+![MOS管结构](/images/ch1-embedded-hardware/image-14.webp)
 
 ## OC门和OD门
 
@@ -186,11 +186,11 @@ mos管是场效应管的一种，故叫MOSFET，
 
 OC门即集电极开路门，如下所示，当N1导通时，输出低电平；当N1截止时，输出高阻态（电路的一种输出状态，既不是高电平也不是低电平，**电路分析时可以理解为开路**）。
 
-![OC门](/images/ch1-embedded-hardware/image-15.png)
+![OC门](/images/ch1-embedded-hardware/image-15.webp)
 
 OC门可以用于电平转换，我们上面说过，当N1导通时，输出低电平；当N1截止时，输出高阻态。但是如果在外部接一个上拉电阻接到VCC上，当N1截止时，输出的电压就是VCC（三极管理解为开路）。
 
-![OC门电平转换](/images/ch1-embedded-hardware/image-16.png)
+![OC门电平转换](/images/ch1-embedded-hardware/image-16.webp)
 
 - 利用这个特性，我们就可以通过改变上拉电阻接的电压来改变输出的电平，实现电平转换
 - 芯片供电电压为3.3V，VCC电压为10V，我们就可以实现3.3V到10V的电平转换。
@@ -199,21 +199,21 @@ OC门可以用于实现线与，即如果有有两个门电路，输出端口直
 
 先考虑用两个TTL元件输出端口直接连接起来
 
-![TTL输出直连](/images/ch1-embedded-hardware/image-17.png)
+![TTL输出直连](/images/ch1-embedded-hardware/image-17.webp)
 
 - 我们来分析这个电路，当N1导通，N2截止时，相当于直接把OUT拉倒地，输出低电平；同理，N1截止，N2导通时也输出低电平；N1 N2均导通时输出低电平，N1 N2均截止时输出高电平。这样，就实现了线与的逻辑。
 
-![线与逻辑示意](/images/ch1-embedded-hardware/233708a1ef566136c264f5f98b8df775.jpg)
+![线与逻辑示意](/images/ch1-embedded-hardware/233708a1ef566136c264f5f98b8df775.webp)
 
 ### OD门
 
 Open Drain，漏级开路门，与OC门类似当N1导通的时候，输出低电平，N1截止的时候输出高阻态
 
-![OD门](/images/ch1-embedded-hardware/image-18.png)
+![OD门](/images/ch1-embedded-hardware/image-18.webp)
 
 OC门与OD门在实现的功能上是相同的，区别在于OC门是对于三极管而言，OD门是对于MOS管而言
 
-![N沟道MOS](/images/ch1-embedded-hardware/image-19.png)
+![N沟道MOS](/images/ch1-embedded-hardware/image-19.webp)
 
 - N沟道MOS
 
@@ -225,20 +225,20 @@ OC门与OD门在实现的功能上是相同的，区别在于OC门是对于三�
 - 具有输出功率大、效率高、失真小等特点
 - 广泛用于音频放大、电源转换、电机驱动等场景。
 
-![推挽电路](/images/ch1-embedded-hardware/image-20.png)
+![推挽电路](/images/ch1-embedded-hardware/image-20.webp)
 
 对左边的而言
 
 - 输入信号为高电平的时候，上面的管子导通（N），下面的管子截止，输出信号为高电平
 - 输入信号为低电平的时候，上面的管子截止，下面的管子导通，输出信号为低电平
 
-![推和挽的过程示意图](/images/ch1-embedded-hardware/image-21.png)
+![推和挽的过程示意图](/images/ch1-embedded-hardware/image-21.webp)
 
 推和挽的过程示意图
 
 当然推挽也可以使用两个增强型MOSFET，如下图
 
-![MOSFET推挽电路](/images/ch1-embedded-hardware/image-22.png)
+![MOSFET推挽电路](/images/ch1-embedded-hardware/image-22.webp)
 
 - 顶部时P-MOS场效应管
 - 底部是N-MOS场效应管
@@ -249,11 +249,11 @@ OC门与OD门在实现的功能上是相同的，区别在于OC门是对于三�
 
 OC 门（集电极开路）和 OD 门（漏极开路）的输出是 "开路" 的，需外部上拉电阻才能输出高电平
 
-![OC/OD门开路输出](/images/ch1-embedded-hardware/image-23.png)
+![OC/OD门开路输出](/images/ch1-embedded-hardware/image-23.webp)
 
 而推挽电路的输出是 "主动推挽" 的（高电平由 P-MOS 直接拉到 Vcc，低电平由 N-MOS 直接拉到 GND）
 
-![推挽电路主动驱动](/images/ch1-embedded-hardware/image-24.png)
+![推挽电路主动驱动](/images/ch1-embedded-hardware/image-24.webp)
 
 这种 "主动驱动" 的特性导致推挽电路无法像OC/OD 门那样通过 "一低则低、全高才高" 的逻辑安全共享总线。
 
