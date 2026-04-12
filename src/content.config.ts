@@ -5,6 +5,8 @@ const notes = defineCollection({
   loader: glob({ pattern: '**/*.mdx', base: './src/content/notes' }),
   schema: z.object({
     title: z.string(),
+    chapter: z.number(),
+    slug: z.string(),
     publishedAt: z.string(),
     updatedAt: z.string(),
     category: z.string(),

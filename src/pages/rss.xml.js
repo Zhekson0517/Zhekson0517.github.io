@@ -13,7 +13,7 @@ export async function GET(context) {
       title: note.data.title,
       pubDate: new Date(note.data.publishedAt),
       description: note.data.abstract,
-      link: `/notes/${note.id}`,
+      link: `/ml/${note.data.slug}`,
       categories: note.data.tags,
     })),
     customData: '<language>en</language>',

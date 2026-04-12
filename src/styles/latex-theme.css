@@ -327,23 +327,12 @@
   border-bottom: 1px solid var(--color-accent);
 }
 
-.astro-code {
-  --shiki-light-bg: var(--color-code-bg);
-  --shiki-dark-bg: #1a1a1a;
+[data-theme="dark"] .astro-code {
+  background-color: #1a1a1a !important;
 }
 
-[data-theme="dark"] .astro-code,
 [data-theme="dark"] .astro-code span {
   color: var(--shiki-dark) !important;
-  background-color: var(--shiki-dark-bg) !important;
-}
-
-[data-theme="light"] .astro-code,
-[data-theme="light"] .astro-code span,
-:not([data-theme]) .astro-code,
-:not([data-theme]) .astro-code span {
-  color: var(--shiki-light) !important;
-  background-color: var(--shiki-light-bg) !important;
 }
 
 [data-theme="dark"] th {

@@ -1,7 +1,6 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import TOC from '../components/TOC.astro';
-import Giscus from '../components/Giscus.astro';
 
 interface Props {
   title: string;
@@ -40,7 +39,6 @@ function readingTime(body: string): number {
         )}
       </header>
       <slot />
-      <Giscus />
     </div>
     {headings.length > 0 && (
       <div class="toc-wrapper">

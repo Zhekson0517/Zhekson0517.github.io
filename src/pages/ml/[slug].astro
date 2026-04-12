@@ -5,7 +5,7 @@ import { getCollection, render } from 'astro:content';
 export async function getStaticPaths() {
   const notes = await getCollection('notes');
   return notes.map(note => ({
-    params: { slug: note.id },
+    params: { slug: note.data.slug },
     props: { note },
   }));
 }
@@ -14,7 +14,7 @@ const { note } = Astro.props;
 const { Content, headings } = await render(note);
 
 const allNotes = (await getCollection('notes'))
-  .sort((a, b) => new Date(a.data.publishedAt).getTime() - new Date(b.data.publishedAt).getTime());
+  .sort((a, b) => a.data.chapter - b.data.chapter);
 
 const currentIndex = allNotes.findIndex(n => n.id === note.id);
 const prevNote = currentIndex > 0 ? allNotes[currentIndex - 1] : null;
@@ -23,11 +23,6 @@ const nextNote = currentIndex < allNotes.length - 1 ? allNotes[currentIndex + 1]
 const relatedNotes = allNotes
   .filter(n => n.id !== note.id && n.data.tags.some(t => note.data.tags.includes(t)))
   .slice(0, 3);
-
-function readingTime(body: string): number {
-  const words = body.trim().split(/\s+/).length;
-  return Math.max(1, Math.ceil(words / 200));
-}
 ---
 
 <NoteLayout
@@ -51,20 +46,20 @@ function readingTime(body: string): number {
   {(prevNote || nextNote) && (
     <nav class="note-nav">
       {prevNote ? (
-        <a href={`/notes/${prevNote.id}`}>&larr; {prevNote.data.title}</a>
+        <a href={`/ml/${prevNote.data.slug}`}>&larr; {prevNote.data.title}</a>
       ) : <span></span>}
       {nextNote ? (
-        <a href={`/notes/${nextNote.id}`} class="note-nav-next">{nextNote.data.title} &rarr;</a>
+        <a href={`/ml/${nextNote.data.slug}`} class="note-nav-next">{nextNote.data.title} &rarr;</a>
       ) : <span></span>}
     </nav>
   )}
 
   {relatedNotes.length > 0 && (
     <div class="related-notes">
-      <h3>Related Notes</h3>
+      <h3>Related Chapters</h3>
       <ul>
         {relatedNotes.map(n => (
-          <li><a href={`/notes/${n.id}`}>{n.data.title}</a></li>
+          <li><a href={`/ml/${n.data.slug}`}>{n.data.title}</a></li>
         ))}
       </ul>
     </div>
