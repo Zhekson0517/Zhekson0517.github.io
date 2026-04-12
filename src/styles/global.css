@@ -165,12 +165,10 @@ code {
 pre {
   margin: 1.5em 0;
   padding: 1em 1.2em;
-  background: var(--color-code-bg) !important;
   border-radius: 2px;
   overflow-x: auto;
   font-size: var(--font-size-code);
   line-height: 1.5;
-  transition: background-color var(--transition-theme);
 }
 
 pre code {
