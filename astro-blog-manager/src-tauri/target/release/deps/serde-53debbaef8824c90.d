@@ -1,0 +1,14 @@
+/Users/zhe/Documents/trae_projects/astro-blog-manager/src-tauri/target/release/deps/serde-53debbaef8824c90.d: /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde-1.0.228/src/lib.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde-1.0.228/src/integer128.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde-1.0.228/src/private/mod.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde-1.0.228/src/private/de.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde-1.0.228/src/private/ser.rs /Users/zhe/Documents/trae_projects/astro-blog-manager/src-tauri/target/release/build/serde-0275a147ece4aa62/out/private.rs
+
+/Users/zhe/Documents/trae_projects/astro-blog-manager/src-tauri/target/release/deps/libserde-53debbaef8824c90.rlib: /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde-1.0.228/src/lib.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde-1.0.228/src/integer128.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde-1.0.228/src/private/mod.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde-1.0.228/src/private/de.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde-1.0.228/src/private/ser.rs /Users/zhe/Documents/trae_projects/astro-blog-manager/src-tauri/target/release/build/serde-0275a147ece4aa62/out/private.rs
+
+/Users/zhe/Documents/trae_projects/astro-blog-manager/src-tauri/target/release/deps/libserde-53debbaef8824c90.rmeta: /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde-1.0.228/src/lib.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde-1.0.228/src/integer128.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde-1.0.228/src/private/mod.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde-1.0.228/src/private/de.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde-1.0.228/src/private/ser.rs /Users/zhe/Documents/trae_projects/astro-blog-manager/src-tauri/target/release/build/serde-0275a147ece4aa62/out/private.rs
+
+/Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde-1.0.228/src/lib.rs:
+/Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde-1.0.228/src/integer128.rs:
+/Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde-1.0.228/src/private/mod.rs:
+/Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde-1.0.228/src/private/de.rs:
+/Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/serde-1.0.228/src/private/ser.rs:
+/Users/zhe/Documents/trae_projects/astro-blog-manager/src-tauri/target/release/build/serde-0275a147ece4aa62/out/private.rs:
+
+# env-dep:OUT_DIR=/Users/zhe/Documents/trae_projects/astro-blog-manager/src-tauri/target/release/build/serde-0275a147ece4aa62/out

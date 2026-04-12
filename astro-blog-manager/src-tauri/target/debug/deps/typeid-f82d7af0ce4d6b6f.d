@@ -1,0 +1,7 @@
+/Users/zhe/Documents/trae_projects/astro-blog-manager/src-tauri/target/debug/deps/typeid-f82d7af0ce4d6b6f.d: /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/typeid-1.0.3/src/lib.rs
+
+/Users/zhe/Documents/trae_projects/astro-blog-manager/src-tauri/target/debug/deps/libtypeid-f82d7af0ce4d6b6f.rlib: /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/typeid-1.0.3/src/lib.rs
+
+/Users/zhe/Documents/trae_projects/astro-blog-manager/src-tauri/target/debug/deps/libtypeid-f82d7af0ce4d6b6f.rmeta: /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/typeid-1.0.3/src/lib.rs
+
+/Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/typeid-1.0.3/src/lib.rs:

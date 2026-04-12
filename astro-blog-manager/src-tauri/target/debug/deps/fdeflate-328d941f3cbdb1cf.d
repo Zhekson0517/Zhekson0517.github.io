@@ -1,0 +1,11 @@
+/Users/zhe/Documents/trae_projects/astro-blog-manager/src-tauri/target/debug/deps/fdeflate-328d941f3cbdb1cf.d: /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/fdeflate-0.3.7/src/lib.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/fdeflate-0.3.7/src/compress.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/fdeflate-0.3.7/src/decompress.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/fdeflate-0.3.7/src/huffman.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/fdeflate-0.3.7/src/tables.rs
+
+/Users/zhe/Documents/trae_projects/astro-blog-manager/src-tauri/target/debug/deps/libfdeflate-328d941f3cbdb1cf.rlib: /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/fdeflate-0.3.7/src/lib.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/fdeflate-0.3.7/src/compress.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/fdeflate-0.3.7/src/decompress.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/fdeflate-0.3.7/src/huffman.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/fdeflate-0.3.7/src/tables.rs
+
+/Users/zhe/Documents/trae_projects/astro-blog-manager/src-tauri/target/debug/deps/libfdeflate-328d941f3cbdb1cf.rmeta: /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/fdeflate-0.3.7/src/lib.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/fdeflate-0.3.7/src/compress.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/fdeflate-0.3.7/src/decompress.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/fdeflate-0.3.7/src/huffman.rs /Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/fdeflate-0.3.7/src/tables.rs
+
+/Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/fdeflate-0.3.7/src/lib.rs:
+/Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/fdeflate-0.3.7/src/compress.rs:
+/Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/fdeflate-0.3.7/src/decompress.rs:
+/Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/fdeflate-0.3.7/src/huffman.rs:
+/Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/fdeflate-0.3.7/src/tables.rs:

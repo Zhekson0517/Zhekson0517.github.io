@@ -1,0 +1,7 @@
+cargo:rerun-if-changed=permissions
+cargo:PERMISSION_FILES_PATH=/Users/zhe/Documents/trae_projects/astro-blog-manager/src-tauri/target/release/build/tauri-plugin-dialog-cdc7753134d40377/out/tauri-plugin-dialog-permission-files
+cargo:rerun-if-env-changed=REMOVE_UNUSED_COMMANDS
+cargo:GLOBAL_API_SCRIPT_PATH=/Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/tauri-plugin-dialog-2.7.0/api-iife.js
+cargo:rustc-check-cfg=cfg(mobile)
+cargo:rustc-check-cfg=cfg(desktop)
+cargo:rustc-cfg=desktop

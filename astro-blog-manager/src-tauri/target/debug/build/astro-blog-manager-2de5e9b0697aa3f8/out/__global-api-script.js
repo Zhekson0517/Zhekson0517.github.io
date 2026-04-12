@@ -1,0 +1,1 @@
+["/Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/tauri-2.10.3/scripts/bundle.global.js","/Users/zhe/.cargo/registry/src/mirrors.ustc.edu.cn-38d0e5eb5da2abae/tauri-plugin-dialog-2.7.0/api-iife.js"]

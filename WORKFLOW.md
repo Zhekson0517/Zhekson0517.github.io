@@ -7,20 +7,20 @@
 - **框架**: Astro 5.x（静态输出模式 `output: 'static'`）
 - **部署**: GitHub Pages（GitHub Actions 自动构建部署）
 - **仓库**: `Zhekson0517/Zhekson0517.github.io`
-- **线上地址**: https://zhekson0517.github.io
-- **本地开发**: `npm install && npm run dev` → http://localhost:4321
+- **线上地址**: <https://zhekson0517.github.io>
+- **本地开发**: `npm install && npm run dev` → <http://localhost:4321>
 
 ## 二、技术栈
 
-| 模块 | 技术 | 版本 |
-|---|---|---|
-| 核心框架 | Astro | ^5.0.0 |
-| 内容格式 | MDX | @astrojs/mdx ^4.0.0 |
-| 数学公式 | remark-math + rehype-katex | ^6.0.0 / ^7.0.0 |
-| 站点地图 | @astrojs/sitemap | ^3.2.0 |
-| RSS | @astrojs/rss | ^4.0.0 |
-| 代码高亮 | Shiki 双主题（github-light / github-dark） | Astro 内置 |
-| 中文字体 | Noto Serif SC (Google Fonts) | — |
+| 模块   | 技术                                    | 版本                  |
+| ---- | ------------------------------------- | ------------------- |
+| 核心框架 | Astro                                 | ^5.0.0              |
+| 内容格式 | MDX                                   | @astrojs/mdx ^4.0.0 |
+| 数学公式 | remark-math + rehype-katex            | ^6.0.0 / ^7.0.0     |
+| 站点地图 | @astrojs/sitemap                      | ^3.2.0              |
+| RSS  | @astrojs/rss                          | ^4.0.0              |
+| 代码高亮 | Shiki 双主题（github-light / github-dark） | Astro 内置            |
+| 中文字体 | Noto Serif SC (Google Fonts)          | —                   |
 
 ## 三、目录结构
 
@@ -93,6 +93,7 @@ keywords: ["VAE", "GAN", "diffusion", "generative"]  # 关键词
 ```
 
 **⚠️ 关键规则**:
+
 - `chapter` 必须是整数，且不能与现有章节重复
 - `slug` 格式必须为 `chN-xxx`，这决定了 URL 路径 `/ml/chN-xxx/`
 - `title` 必须以 `ChN.` 开头
@@ -190,6 +191,7 @@ export default defineConfig({
 ```
 
 **⚠️ 注意**:
+
 - `remarkPlugins` 和 `rehypePlugins` 必须使用显式 `import` 导入，不能写字符串如 `'remark-math'`，否则 MDX 集成会报警告且公式不渲染
 - Shiki 使用双主题模式，亮色用 inline `color` 样式，暗色用 `--shiki-dark` CSS 变量，通过 `[data-theme="dark"]` 选择器切换
 
@@ -230,22 +232,22 @@ export const collections = { notes };
 
 ### 字体体系
 
-| 用途 | 字体 | CSS 变量 |
-|---|---|---|
-| 正文 | Computer Modern Roman → Noto Serif SC → Georgia → Times New Roman | `--font-serif` |
-| 标题/导航 | Computer Modern Sans → Noto Serif SC → Helvetica → Arial | `--font-sans` |
-| 代码 | Computer Modern Typewriter → Courier New | `--font-mono` |
+| 用途    | 字体                                                                | CSS 变量         |
+| ----- | ----------------------------------------------------------------- | -------------- |
+| 正文    | Computer Modern Roman → Noto Serif SC → Georgia → Times New Roman | `--font-serif` |
+| 标题/导航 | Computer Modern Sans → Noto Serif SC → Helvetica → Arial          | `--font-sans`  |
+| 代码    | Computer Modern Typewriter → Courier New                          | `--font-mono`  |
 
 **中文字体说明**: Noto Serif SC（思源宋体）通过 Google Fonts CDN 加载，在 `BaseLayout.astro` 中引入。当 Computer Modern 字体不包含中文字符时，浏览器自动回退到 Noto Serif SC，确保中文标题和正文均使用宋体渲染，符合中文学术排版规范。
 
 ### 配色
 
-| 元素 | 明模式 | 暗模式 |
-|---|---|---|
-| 背景 | `#ffffff` | `#121212` |
-| 正文 | `#121212` | `#f0f0f0` |
-| 标题 | `#000000` | `#ffffff` |
-| 强调色 | `#003366` | `#6699cc` |
+| 元素   | 明模式       | 暗模式       |
+| ---- | --------- | --------- |
+| 背景   | `#ffffff` | `#121212` |
+| 正文   | `#121212` | `#f0f0f0` |
+| 标题   | `#000000` | `#ffffff` |
+| 强调色  | `#003366` | `#6699cc` |
 | 代码背景 | `#f5f5f5` | `#1a1a1a` |
 
 ### 排版规范
@@ -260,7 +262,7 @@ export const collections = { notes };
 - Shiki 双主题：亮色 `github-light`，暗色 `github-dark`
 - 亮色模式：Shiki 直接输出 inline `color` 样式，无需 CSS 覆盖
 - 暗色模式：通过 `[data-theme="dark"] .astro-code span { color: var(--shiki-dark) !important; }` 切换
-- **⚠️ 不要使用 `--shiki-light` CSS 变量**，Shiki 双主题输出中不存在此变量，使用会导致高亮丢失
+- **⚠️ 不要使用** **`--shiki-light`** **CSS 变量**，Shiki 双主题输出中不存在此变量，使用会导致高亮丢失
 
 ## 七、部署流程
 
@@ -279,28 +281,29 @@ git push origin main
 
 ## 八、常见问题
 
-| 问题 | 原因 | 解决 |
-|---|---|---|
-| MDX 中公式不渲染 | 插件用字符串导入 | 改为 `import remarkMath from 'remark-math'` 显式导入 |
-| RSS 构建报错 | `.js` 文件中用了 TS 语法 | `rss.xml.js` 中不能用 `import type` 或类型注解 |
-| 新笔记不显示 | frontmatter 字段缺失/类型错误 | 对照 `content.config.ts` 的 schema 检查 |
-| npm install 慢 | 国内网络 | `npm config set registry https://registry.npmmirror.com` |
-| SSL 证书错误 | 代理/网络问题 | 用 SSH 方式: `git remote set-url origin git@github.com:...` |
-| 暗模式代码块不适配 | Shiki 主题固定 | 需要在 `[data-theme="dark"]` 下覆盖 `.astro-code` 样式 |
-| 代码高亮全部丢失 | CSS 使用了不存在的 `--shiki-light` 变量 | 亮色模式不要覆盖，让 Shiki inline 样式生效 |
-| 中文标题字体丑 | Computer Modern Sans 无中文，回退到 Helvetica | 已添加 Noto Serif SC 到字体栈 |
-| Giscus 报错 | 未在仓库安装 Giscus | 已移除 Giscus 组件，如需评论功能需重新配置 |
+| 问题            | 原因                                     | 解决                                                       |
+| ------------- | -------------------------------------- | -------------------------------------------------------- |
+| MDX 中公式不渲染    | 插件用字符串导入                               | 改为 `import remarkMath from 'remark-math'` 显式导入           |
+| RSS 构建报错      | `.js` 文件中用了 TS 语法                      | `rss.xml.js` 中不能用 `import type` 或类型注解                    |
+| 新笔记不显示        | frontmatter 字段缺失/类型错误                  | 对照 `content.config.ts` 的 schema 检查                       |
+| npm install 慢 | 国内网络                                   | `npm config set registry https://registry.npmmirror.com` |
+| SSL 证书错误      | 代理/网络问题                                | 用 SSH 方式: `git remote set-url origin git@github.com:...` |
+| 暗模式代码块不适配     | Shiki 主题固定                             | 需要在 `[data-theme="dark"]` 下覆盖 `.astro-code` 样式           |
+| 代码高亮全部丢失      | CSS 使用了不存在的 `--shiki-light` 变量         | 亮色模式不要覆盖，让 Shiki inline 样式生效                             |
+| 中文标题字体丑       | Computer Modern Sans 无中文，回退到 Helvetica | 已添加 Noto Serif SC 到字体栈                                   |
+| Giscus 报错     | 未在仓库安装 Giscus                          | 已移除 Giscus 组件，如需评论功能需重新配置                                |
 
 ## 九、个人信息修改清单
 
 需要修改个人信息时，编辑以下文件：
 
-| 信息 | 文件 |
-|---|---|
-| 姓名/身份/简介 | `src/pages/index.astro` |
-| 学术背景/联系方式 | `src/pages/about.astro` |
-| 导航栏标题 | `src/components/Header.astro` |
-| 页脚版权 | `src/components/Footer.astro` |
+| 信息        | 文件                                                           |
+| --------- | ------------------------------------------------------------ |
+| 姓名/身份/简介  | `src/pages/index.astro`                                      |
+| 学术背景/联系方式 | `src/pages/about.astro`                                      |
+| 导航栏标题     | `src/components/Header.astro`                                |
+| 页脚版权      | `src/components/Footer.astro`                                |
 | GitHub 链接 | `Header.astro`, `Footer.astro`, `about.astro`, `index.astro` |
-| RSS 标题/描述 | `src/pages/rss.xml.js` |
-| 站点 URL | `astro.config.mjs` 的 `site` 字段 |
+| RSS 标题/描述 | `src/pages/rss.xml.js`                                       |
+| 站点 URL    | `astro.config.mjs` 的 `site` 字段                               |
+
