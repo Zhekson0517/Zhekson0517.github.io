@@ -1,0 +1,51 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import TOC from '../components/TOC.astro';
+import Giscus from '../components/Giscus.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  publishedAt?: string;
+  updatedAt?: string;
+  category?: string;
+  tags?: string[];
+  headings?: { depth: number; slug: string; text: string }[];
+}
+
+const { title, description, publishedAt, updatedAt, category, tags = [], headings = [] } = Astro.props;
+
+function readingTime(body: string): number {
+  const words = body.trim().split(/\s+/).length;
+  return Math.max(1, Math.ceil(words / 200));
+}
+---
+
+<BaseLayout title={title} description={description}>
+  <article class="note-layout-grid fade-in">
+    <div class="note-content">
+      <header class="note-header">
+        <h1 class="note-title">{title}</h1>
+        <div class="note-meta">
+          {publishedAt && <span>Published: {publishedAt}</span>}
+          {updatedAt && updatedAt !== publishedAt && <span>Updated: {updatedAt}</span>}
+          {category && <span>Category: {category}</span>}
+        </div>
+        {tags.length > 0 && (
+          <div class="note-tags">
+            {tags.map((tag: string) => (
+              <a href={`/tags?tag=${encodeURIComponent(tag)}`} class="tag">{tag}</a>
+            ))}
+          </div>
+        )}
+      </header>
+      <slot />
+      <Giscus />
+    </div>
+    {headings.length > 0 && (
+      <div class="toc-wrapper">
+        <TOC headings={headings} />
+      </div>
+    )}
+  </article>
+</BaseLayout>

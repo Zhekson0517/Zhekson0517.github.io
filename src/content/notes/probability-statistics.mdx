@@ -1,0 +1,116 @@
+---
+title: "Probability and Statistics for Machine Learning"
+slug: "probability-statistics"
+publishedAt: "2025-01-20"
+updatedAt: "2025-03-12"
+category: "Mathematics"
+tags: ["probability", "statistics", "Bayesian inference", "distributions", "mathematics"]
+abstract: "Foundational concepts in probability theory and statistics for machine learning, covering probability axioms, common distributions, Bayes' theorem, maximum likelihood estimation, and hypothesis testing."
+keywords: ["probability", "Bayes theorem", "MLE", "distributions", "statistical inference"]
+---
+
+## Introduction
+
+Probability theory provides the mathematical framework for reasoning under uncertainty, which is at the heart of machine learning. Statistical methods allow us to infer patterns from data and quantify our confidence in those inferences. This note reviews the essential probabilistic and statistical concepts.
+
+## Probability Axioms and Rules
+
+Given a sample space $\Omega$ and event space $\mathcal{F}$, a probability measure $P$ satisfies:
+
+1. **Non-negativity**: $P(A) \geq 0$ for all $A \in \mathcal{F}$
+2. **Normalization**: $P(\Omega) = 1$
+3. **Countable additivity**: For disjoint events $A_1, A_2, \ldots$:
+
+$$P\left(\bigcup_{i=1}^{\infty} A_i\right) = \sum_{i=1}^{\infty} P(A_i)$$
+
+The **conditional probability** of $A$ given $B$ is:
+
+$$P(A \mid B) = \frac{P(A \cap B)}{P(B)}, \quad P(B) > 0$$
+
+## Bayes' Theorem
+
+Bayes' theorem relates conditional probabilities and is fundamental to Bayesian machine learning:
+
+$$P(\theta \mid \mathcal{D}) = \frac{P(\mathcal{D} \mid \theta) \, P(\theta)}{P(\mathcal{D})}$$
+
+where:
+- $P(\theta \mid \mathcal{D})$ is the **posterior**
+- $P(\mathcal{D} \mid \theta)$ is the **likelihood**
+- $P(\theta)$ is the **prior**
+- $P(\mathcal{D}) = \int P(\mathcal{D} \mid \theta) P(\theta) \, d\theta$ is the **evidence**
+
+## Common Probability Distributions
+
+### Gaussian Distribution
+
+$$\mathcal{N}(x \mid \mu, \sigma^2) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(x - \mu)^2}{2\sigma^2}\right)$$
+
+### Multivariate Gaussian
+
+$$\mathcal{N}(\mathbf{x} \mid \boldsymbol{\mu}, \boldsymbol{\Sigma}) = \frac{1}{(2\pi)^{d/2}|\boldsymbol{\Sigma}|^{1/2}} \exp\left(-\frac{1}{2}(\mathbf{x} - \boldsymbol{\mu})^\top \boldsymbol{\Sigma}^{-1}(\mathbf{x} - \boldsymbol{\mu})\right)$$
+
+### Categorical Distribution
+
+$$P(x = k) = \pi_k, \quad \sum_{k=1}^{K} \pi_k = 1$$
+
+## Maximum Likelihood Estimation
+
+Given i.i.d. observations $\mathcal{D} = \{x_1, \ldots, x_N\}$ from $p(x \mid \theta)$, the MLE is:
+
+$$\hat{\theta}_{\text{MLE}} = \arg\max_{\theta} \prod_{i=1}^{N} p(x_i \mid \theta) = \arg\max_{\theta} \sum_{i=1}^{N} \log p(x_i \mid \theta)$$
+
+For a Gaussian with unknown $\mu$ and $\sigma^2$:
+
+$$\hat{\mu} = \frac{1}{N}\sum_{i=1}^{N} x_i, \quad \hat{\sigma}^2 = \frac{1}{N}\sum_{i=1}^{N}(x_i - \hat{\mu})^2$$
+
+## Python Implementation
+
+```python
+import numpy as np
+from scipy import stats
+
+# Maximum likelihood estimation for Gaussian
+np.random.seed(42)
+data = np.random.normal(loc=5.0, scale=2.0, size=1000)
+
+mu_mle = np.mean(data)
+sigma2_mle = np.var(data, ddof=0)
+print(f"MLE mean: {mu_mle:.4f} (true: 5.0)")
+print(f"MLE variance: {sigma2_mle:.4f} (true: 4.0)")
+
+# Bayesian inference: conjugate prior for Gaussian
+prior_mu, prior_sigma = 0.0, 10.0
+n = len(data)
+posterior_precision = 1/prior_sigma**2 + n/sigma2_mle
+posterior_mu = (prior_mu/prior_sigma**2 + n*mu_mle/sigma2_mle) / posterior_precision
+posterior_var = 1.0 / posterior_precision
+print(f"Posterior mean: {posterior_mu:.4f}")
+print(f"Posterior variance: {posterior_var:.6f}")
+
+# Hypothesis testing
+t_stat, p_value = stats.ttest_1samp(data, 5.0)
+print(f"t-statistic: {t_stat:.4f}, p-value: {p_value:.4f}")
+```
+
+## Law of Large Numbers and Central Limit Theorem
+
+The **Law of Large Numbers** states that for i.i.d. random variables $X_1, \ldots, X_N$ with mean $\mu$:
+
+$$\bar{X}_N = \frac{1}{N}\sum_{i=1}^{N} X_i \xrightarrow{P} \mu \quad \text{as } N \to \infty$$
+
+The **Central Limit Theorem** states:
+
+$$\sqrt{N}(\bar{X}_N - \mu) \xrightarrow{d} \mathcal{N}(0, \sigma^2)$$
+
+## Summary
+
+- Probability theory formalizes reasoning under uncertainty
+- Bayes' theorem connects prior knowledge with observed data
+- MLE provides a principled way to estimate parameters from data
+- The CLT justifies the ubiquity of Gaussian distributions in practice
+
+## References
+
+1. Casella, G., & Berger, R. L. (2002). *Statistical Inference*. 2nd ed. Duxbury Press.
+2. Murphy, K. P. (2022). *Probabilistic Machine Learning: An Introduction*. MIT Press.
+3. Wasserman, L. (2004). *All of Statistics*. Springer.

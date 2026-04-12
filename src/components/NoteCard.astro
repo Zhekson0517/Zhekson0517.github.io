@@ -1,0 +1,27 @@
+---
+interface Props {
+  title: string;
+  href: string;
+  date: string;
+  abstract: string;
+  tags: string[];
+  category: string;
+}
+
+const { title, href, date, abstract, tags, category } = Astro.props;
+---
+
+<article class="note-card">
+  <h2 class="note-card-title">
+    <a href={href}>{title}</a>
+  </h2>
+  <div class="note-card-meta">
+    {date} &middot; {category}
+  </div>
+  <p class="note-card-abstract">{abstract}</p>
+  <div>
+    {tags.map(tag => (
+      <a href={`/tags?tag=${encodeURIComponent(tag)}`} class="tag">{tag}</a>
+    ))}
+  </div>
+</article>

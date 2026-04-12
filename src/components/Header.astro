@@ -1,0 +1,23 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+
+const currentPath = Astro.url.pathname;
+const navItems = [
+  { href: '/', label: 'Home' },
+  { href: '/notes', label: 'Notes' },
+  { href: '/archive', label: 'Archive' },
+  { href: '/about', label: 'About' },
+];
+---
+
+<nav class="nav" id="site-nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-title">Zhe's Blog</a>
+    <div class="nav-links">
+      {navItems.map(item => (
+        <a href={item.href} class:list={['nav-link', currentPath === item.href && 'active']}>{item.label}</a>
+      ))}
+      <ThemeToggle />
+    </div>
+  </div>
+</nav>

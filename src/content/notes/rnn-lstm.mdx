@@ -1,0 +1,160 @@
+---
+title: "Recurrent Neural Networks and LSTM"
+slug: "rnn-lstm"
+publishedAt: "2025-03-15"
+updatedAt: "2025-04-08"
+category: "Deep Learning"
+tags: ["RNN", "LSTM", "GRU", "sequence modeling", "deep learning", "machine learning"]
+abstract: "A detailed study of recurrent neural networks for sequence modeling, covering vanilla RNNs, the vanishing gradient problem, LSTM and GRU gated architectures, bidirectional and stacked variants, and sequence-to-sequence models with attention."
+keywords: ["RNN", "LSTM", "GRU", "sequence modeling", "attention mechanism"]
+---
+
+## Introduction
+
+Recurrent Neural Networks (RNNs) process sequential data by maintaining a hidden state that captures information from previous time steps. This makes them natural for language, time series, and any data with temporal dependencies.
+
+## Vanilla RNN
+
+The vanilla RNN updates its hidden state at each time step:
+
+$$\mathbf{h}_t = \tanh(\mathbf{W}_{hh}\mathbf{h}_{t-1} + \mathbf{W}_{xh}\mathbf{x}_t + \mathbf{b}_h)$$
+$$\mathbf{y}_t = \mathbf{W}_{hy}\mathbf{h}_t + \mathbf{b}_y$$
+
+The hidden state $\mathbf{h}_t$ serves as the network's "memory" of past inputs.
+
+## The Vanishing Gradient Problem
+
+When unrolled through time, the gradient involves repeated matrix multiplications:
+
+$$\frac{\partial \mathcal{L}}{\partial \mathbf{h}_0} = \frac{\partial \mathcal{L}}{\partial \mathbf{h}_T} \prod_{t=1}^{T} \frac{\partial \mathbf{h}_t}{\partial \mathbf{h}_{t-1}}$$
+
+Each Jacobian $\frac{\partial \mathbf{h}_t}{\partial \mathbf{h}_{t-1}}$ has eigenvalues determined by $\mathbf{W}_{hh}$. If the largest eigenvalue is less than 1, gradients vanish exponentially; if greater than 1, they explode.
+
+**Gradient clipping** mitigates exploding gradients:
+
+$$\mathbf{g} \leftarrow \frac{\theta}{\|\mathbf{g}\|} \mathbf{g} \quad \text{if } \|\mathbf{g}\| > \theta$$
+
+## Long Short-Term Memory (LSTM)
+
+LSTM addresses vanishing gradients through a gating mechanism. The cell state $\mathbf{c}_t$ acts as a "conveyor belt" with additive updates:
+
+**Forget gate**: $\mathbf{f}_t = \sigma(\mathbf{W}_f [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_f)$
+
+**Input gate**: $\mathbf{i}_t = \sigma(\mathbf{W}_i [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_i)$
+
+**Candidate**: $\tilde{\mathbf{c}}_t = \tanh(\mathbf{W}_c [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_c)$
+
+**Cell update**: $\mathbf{c}_t = \mathbf{f}_t \odot \mathbf{c}_{t-1} + \mathbf{i}_t \odot \tilde{\mathbf{c}}_t$
+
+**Output gate**: $\mathbf{o}_t = \sigma(\mathbf{W}_o [\mathbf{h}_{t-1}, \mathbf{x}_t] + \mathbf{b}_o)$
+
+**Hidden state**: $\mathbf{h}_t = \mathbf{o}_t \odot \tanh(\mathbf{c}_t)$
+
+The key insight: the cell state gradient flows through the forget gate:
+
+$$\frac{\partial \mathbf{c}_t}{\partial \mathbf{c}_{t-1}} = \mathbf{f}_t$$
+
+When $\mathbf{f}_t \approx 1$, the gradient is preserved across many time steps.
+
+## Gated Recurrent Unit (GRU)
+
+A simplified variant with fewer parameters:
+
+**Reset gate**: $\mathbf{r}_t = \sigma(\mathbf{W}_r [\mathbf{h}_{t-1}, \mathbf{x}_t])$
+
+**Update gate**: $\mathbf{z}_t = \sigma(\mathbf{W}_z [\mathbf{h}_{t-1}, \mathbf{x}_t])$
+
+**Candidate**: $\tilde{\mathbf{h}}_t = \tanh(\mathbf{W}[\mathbf{r}_t \odot \mathbf{h}_{t-1}, \mathbf{x}_t])$
+
+**Output**: $\mathbf{h}_t = (1 - \mathbf{z}_t) \odot \mathbf{h}_{t-1} + \mathbf{z}_t \odot \tilde{\mathbf{h}}_t$
+
+GRU merges the cell state and hidden state, and combines forget/input gates into the update gate.
+
+## Bidirectional and Stacked RNNs
+
+**Bidirectional RNN** processes sequences in both directions:
+
+$$\overrightarrow{\mathbf{h}}_t = \text{RNN}(\overrightarrow{\mathbf{h}}_{t-1}, \mathbf{x}_t), \quad \overleftarrow{\mathbf{h}}_t = \text{RNN}(\overleftarrow{\mathbf{h}}_{t+1}, \mathbf{x}_t)$$
+$$\mathbf{h}_t = [\overrightarrow{\mathbf{h}}_t; \overleftarrow{\mathbf{h}}_t]$$
+
+**Stacked RNNs** layer multiple RNNs, where each layer's output is the next layer's input.
+
+## Python Implementation
+
+```python
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import numpy as np
+
+# LSTM for sequence classification
+class LSTMClassifier(nn.Module):
+    def __init__(self, input_dim, hidden_dim, output_dim, n_layers=2, dropout=0.3):
+        super().__init__()
+        self.lstm = nn.LSTM(
+            input_dim, hidden_dim,
+            num_layers=n_layers,
+            batch_first=True,
+            bidirectional=True,
+            dropout=dropout if n_layers > 1 else 0
+        )
+        self.fc = nn.Linear(hidden_dim * 2, output_dim)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x):
+        output, (hidden, cell) = self.lstm(x)
+        hidden_cat = torch.cat([hidden[-2], hidden[-1]], dim=1)
+        return self.fc(self.dropout(hidden_cat))
+
+# GRU variant
+class GRUClassifier(nn.Module):
+    def __init__(self, input_dim, hidden_dim, output_dim, n_layers=2):
+        super().__init__()
+        self.gru = nn.GRU(input_dim, hidden_dim, num_layers=n_layers,
+                          batch_first=True, bidirectional=True)
+        self.fc = nn.Linear(hidden_dim * 2, output_dim)
+
+    def forward(self, x):
+        output, hidden = self.gru(x)
+        hidden_cat = torch.cat([hidden[-2], hidden[-1]], dim=1)
+        return self.fc(hidden_cat)
+
+# Generate synthetic sequence data
+np.random.seed(42)
+n_samples = 500
+seq_len = 20
+input_dim = 8
+X = np.random.randn(n_samples, seq_len, input_dim).astype(np.float32)
+y = (X.sum(axis=1)[:, 0] > 0).astype(np.int64)
+
+X_t = torch.FloatTensor(X)
+y_t = torch.LongTensor(y)
+
+model = LSTMClassifier(input_dim, hidden_dim=64, output_dim=2)
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+for epoch in range(50):
+    optimizer.zero_grad()
+    output = model(X_t)
+    loss = criterion(output, y_t)
+    loss.backward()
+    optimizer.step()
+    if (epoch + 1) % 10 == 0:
+        acc = (output.argmax(1) == y_t).float().mean()
+        print(f"Epoch {epoch+1}: loss={loss.item():.4f}, acc={acc:.4f}")
+```
+
+## Summary
+
+- RNNs process sequences by maintaining hidden state across time steps
+- Vanishing gradients limit vanilla RNNs to short-range dependencies
+- LSTM's gating mechanism enables learning long-range dependencies
+- GRU is a simpler alternative with comparable performance
+- Bidirectional RNNs capture both past and future context
+
+## References
+
+1. Hochreiter, S., & Schmidhuber, J. (1997). Long Short-Term Memory. *Neural Computation*, 9(8), 1735–1780.
+2. Cho, K., et al. (2014). Learning Phrase Representations using RNN Encoder-Decoder. *EMNLP*.
+3. Graves, A., & Schmidhuber, J. (2005). Framewise Phoneme Classification with Bidirectional LSTM. *IJCNN*.

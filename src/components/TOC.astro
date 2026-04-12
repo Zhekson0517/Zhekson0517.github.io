@@ -1,0 +1,59 @@
+---
+interface Props {
+  headings: { depth: number; slug: string; text: string }[];
+}
+
+const { headings } = Astro.props;
+const filtered = headings.filter(h => h.depth >= 2 && h.depth <= 3);
+---
+
+<aside class="toc-sidebar" id="toc-sidebar">
+  <h3>Contents</h3>
+  <ul class="toc-list">
+    {filtered.map(heading => (
+      <li>
+        <a
+          href={`#${heading.slug}`}
+          class:list={['toc-link', heading.depth === 3 && 'toc-h3']}
+          data-heading-slug={heading.slug}
+        >
+          {heading.text}
+        </a>
+      </li>
+    ))}
+  </ul>
+</aside>
+
+<script is:inline>
+  (function() {
+    var links = document.querySelectorAll('.toc-link');
+    if (!links.length) return;
+
+    function setActive() {
+      var scrollPos = window.scrollY + 100;
+      var activeSlug = null;
+
+      document.querySelectorAll('h2[id], h3[id]').forEach(function(heading) {
+        if (heading.offsetTop <= scrollPos) {
+          activeSlug = heading.id;
+        }
+      });
+
+      links.forEach(function(link) {
+        if (link.getAttribute('data-heading-slug') === activeSlug) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
+      });
+    }
+
+    var timeout;
+    window.addEventListener('scroll', function() {
+      clearTimeout(timeout);
+      timeout = setTimeout(setActive, 50);
+    });
+
+    setActive();
+  })();
+</script>

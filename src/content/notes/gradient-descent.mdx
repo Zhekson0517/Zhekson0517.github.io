@@ -1,0 +1,162 @@
+---
+title: "Gradient Descent and Optimization Algorithms"
+slug: "gradient-descent"
+publishedAt: "2025-02-10"
+updatedAt: "2025-03-20"
+category: "Machine Learning"
+tags: ["gradient descent", "optimization", "SGD", "Adam", "learning rate", "machine learning"]
+abstract: "An in-depth study of gradient-based optimization algorithms for machine learning, covering batch gradient descent, stochastic gradient descent, momentum methods, adaptive learning rate algorithms, and convergence analysis."
+keywords: ["gradient descent", "SGD", "Adam", "momentum", "convergence"]
+---
+
+## Introduction
+
+Optimization lies at the core of machine learning: training a model means finding parameters that minimize a loss function. Gradient descent and its variants are the workhorse optimization algorithms. Understanding their properties is essential for effective model training.
+
+## Gradient Descent Fundamentals
+
+Given a differentiable loss function $\mathcal{L}(\boldsymbol{\theta})$, gradient descent updates parameters iteratively:
+
+$$\boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} - \eta \nabla_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\theta}^{(t)})$$
+
+where $\eta > 0$ is the learning rate (step size).
+
+### Convergence Guarantee
+
+For an $L$-smooth convex function (Lipschitz continuous gradient), gradient descent with $\eta \leq 1/L$ satisfies:
+
+$$\mathcal{L}(\boldsymbol{\theta}^{(T)}) - \mathcal{L}(\boldsymbol{\theta}^*) \leq \frac{\|\boldsymbol{\theta}^{(0)} - \boldsymbol{\theta}^*\|^2}{2\eta T}$$
+
+This gives $O(1/T)$ convergence rate for convex functions.
+
+## Variants of Gradient Descent
+
+### Batch Gradient Descent
+
+Uses the full dataset to compute the gradient:
+
+$$\nabla \mathcal{L} = \frac{1}{N}\sum_{i=1}^{N} \nabla \ell(\boldsymbol{\theta}; \mathbf{x}_i, y_i)$$
+
+- **Pro**: Exact gradient direction
+- **Con**: Computationally expensive for large $N$
+
+### Stochastic Gradient Descent (SGD)
+
+Uses a single sample per update:
+
+$$\boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} - \eta_t \nabla \ell(\boldsymbol{\theta}^{(t)}; \mathbf{x}_{i_t}, y_{i_t})$$
+
+- **Pro**: $O(1)$ per step, escapes shallow local minima
+- **Con**: High variance in gradient estimates
+
+### Mini-batch SGD
+
+Uses a batch of $B$ samples:
+
+$$\nabla \mathcal{L} \approx \frac{1}{B}\sum_{i \in \mathcal{B}_t} \nabla \ell(\boldsymbol{\theta}; \mathbf{x}_i, y_i)$$
+
+This balances efficiency and stability, and is the standard in deep learning.
+
+## Momentum Methods
+
+### Classical Momentum
+
+$$\mathbf{v}^{(t)} = \gamma \mathbf{v}^{(t-1)} + \eta \nabla \mathcal{L}(\boldsymbol{\theta}^{(t)})$$
+$$\boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} - \mathbf{v}^{(t)}$$
+
+where $\gamma \in [0, 1)$ is the momentum coefficient (typically 0.9).
+
+### Nesterov Accelerated Gradient (NAG)
+
+$$\mathbf{v}^{(t)} = \gamma \mathbf{v}^{(t-1)} + \eta \nabla \mathcal{L}(\boldsymbol{\theta}^{(t)} - \gamma \mathbf{v}^{(t-1)})$$
+$$\boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} - \mathbf{v}^{(t)}$$
+
+NAG evaluates the gradient at a "look-ahead" position, providing better convergence for convex functions.
+
+## Adaptive Learning Rate Methods
+
+### AdaGrad
+
+Accumulates squared gradients to adapt the learning rate per parameter:
+
+$$\boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} - \frac{\eta}{\sqrt{\mathbf{G}^{(t)} + \epsilon}} \odot \nabla \mathcal{L}$$
+
+where $G_{jj}^{(t)} = \sum_{s=1}^{t}(\nabla_j \mathcal{L}^{(s)})^2$.
+
+### RMSProp
+
+Addresses AdaGrad's monotonically decreasing learning rate:
+
+$$\mathbf{s}^{(t)} = \rho \mathbf{s}^{(t-1)} + (1-\rho)(\nabla \mathcal{L})^2$$
+$$\boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} - \frac{\eta}{\sqrt{\mathbf{s}^{(t)} + \epsilon}} \odot \nabla \mathcal{L}$$
+
+### Adam
+
+Combines momentum and adaptive learning rates:
+
+$$\mathbf{m}^{(t)} = \beta_1 \mathbf{m}^{(t-1)} + (1-\beta_1)\nabla \mathcal{L}$$
+$$\mathbf{v}^{(t)} = \beta_2 \mathbf{v}^{(t-1)} + (1-\beta_2)(\nabla \mathcal{L})^2$$
+$$\hat{\mathbf{m}}^{(t)} = \frac{\mathbf{m}^{(t)}}{1-\beta_1^t}, \quad \hat{\mathbf{v}}^{(t)} = \frac{\mathbf{v}^{(t)}}{1-\beta_2^t}$$
+$$\boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} - \frac{\eta}{\sqrt{\hat{\mathbf{v}}^{(t)}} + \epsilon} \odot \hat{\mathbf{m}}^{(t)}$$
+
+Default hyperparameters: $\beta_1 = 0.9$, $\beta_2 = 0.999$, $\epsilon = 10^{-8}$.
+
+## Python Implementation
+
+```python
+import numpy as np
+
+def rosenbrock(x, y):
+    return (1 - x)**2 + 100 * (y - x**2)**2
+
+def rosenbrock_grad(x, y):
+    dx = -2*(1-x) - 400*x*(y - x**2)
+    dy = 200*(y - x**2)
+    return np.array([dx, dy])
+
+# Adam optimizer
+def adam_optimize(grad_fn, x0, lr=0.001, beta1=0.9, beta2=0.999,
+                  eps=1e-8, n_iters=10000):
+    x = np.array(x0, dtype=float)
+    m = np.zeros_like(x)
+    v = np.zeros_like(x)
+    path = [x.copy()]
+
+    for t in range(1, n_iters + 1):
+        g = grad_fn(x[0], x[1])
+        m = beta1 * m + (1 - beta1) * g
+        v = beta2 * v + (1 - beta2) * g**2
+        m_hat = m / (1 - beta1**t)
+        v_hat = v / (1 - beta2**t)
+        x = x - lr * m_hat / (np.sqrt(v_hat) + eps)
+        path.append(x.copy())
+
+    return x, np.array(path)
+
+x_opt, path = adam_optimize(rosenbrock_grad, [-1.0, 1.0], lr=0.01)
+print(f"Adam optimum: ({x_opt[0]:.6f}, {x_opt[1]:.6f})")
+print(f"Function value: {rosenbrock(x_opt[0], x_opt[1]):.10f}")
+print(f"True minimum: (1.0, 1.0) with value 0")
+```
+
+## Learning Rate Scheduling
+
+Common strategies include:
+- **Step decay**: $\eta_t = \eta_0 \cdot \gamma^{\lfloor t / T \rfloor}$
+- **Exponential decay**: $\eta_t = \eta_0 \cdot e^{-kt}$
+- **Cosine annealing**: $\eta_t = \eta_{\min} + \frac{1}{2}(\eta_{\max} - \eta_{\min})(1 + \cos(\pi t / T))$
+- **Warm restarts**: Periodically reset the learning rate
+
+## Summary
+
+- Gradient descent is the foundation of ML optimization
+- SGD and mini-batch variants scale to large datasets
+- Momentum accelerates convergence through accumulated velocity
+- Adam combines the best of momentum and adaptive learning rates
+- Learning rate scheduling is crucial for training deep networks
+
+## References
+
+1. Kingma, D. P., & Ba, J. (2015). Adam: A Method for Stochastic Optimization. *ICLR*.
+2. Nesterov, Y. (2004). *Introductory Lectures on Convex Optimization*. Springer.
+3. Ruder, S. (2016). An overview of gradient descent optimization algorithms. *arXiv:1609.04747*.

@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allNotes = await getCollection('notes');
+const tagMap: Record<string, number> = {};
+allNotes.forEach(note => {
+  note.data.tags.forEach(tag => {
+    tagMap[tag] = (tagMap[tag] || 0) + 1;
+  });
+});
+
+const sortedTags = Object.entries(tagMap).sort((a, b) => b[1] - a[1]);
+const activeTag = Astro.url.searchParams.get('tag');
+
+const filteredNotes = activeTag
+  ? allNotes.filter(n => n.data.tags.includes(activeTag)).sort((a, b) => new Date(b.data.publishedAt).getTime() - new Date(a.data.publishedAt).getTime())
+  : [];
+---
+
+<BaseLayout title="Tags" description="Browse notes by tags.">
+  <section class="fade-in">
+    <h1 class="section-title">Tags</h1>
+
+    <div class="tag-cloud">
+      {sortedTags.map(([tag, count]) => (
+        <a
+          href={activeTag === tag ? '/tags' : `/tags?tag=${encodeURIComponent(tag)}`}
+          class:list={['tag', activeTag === tag && 'active']}
+        >
+          {tag}<span class="tag-count">({count})</span>
+        </a>
+      ))}
+    </div>
+
+    {activeTag && (
+      <div style="margin-top: 2em;">
+        <h2>Notes tagged "{activeTag}"</h2>
+        {filteredNotes.map(note => (
+          <div class="archive-item">
+            <a href={`/notes/${note.id}`}>{note.data.title}</a>
+            <span class="archive-item-date">{note.data.publishedAt}</span>
+          </div>
+        ))}
+        {filteredNotes.length === 0 && <p>No notes found with this tag.</p>}
+      </div>
+    )}
+  </section>
+</BaseLayout>

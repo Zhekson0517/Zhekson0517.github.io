@@ -1,0 +1,124 @@
+---
+title: "Logistic Regression and Classification"
+slug: "logistic-regression"
+publishedAt: "2025-02-05"
+updatedAt: "2025-03-18"
+category: "Machine Learning"
+tags: ["logistic regression", "classification", "sigmoid", "cross-entropy", "machine learning"]
+abstract: "A comprehensive study of logistic regression for binary and multi-class classification, covering the sigmoid function, maximum likelihood estimation, gradient-based optimization, and regularization strategies."
+keywords: ["logistic regression", "sigmoid", "cross-entropy", "softmax", "classification"]
+---
+
+## Introduction
+
+Logistic regression is the canonical classification algorithm that models the probability of class membership using the logistic (sigmoid) function. Despite its name, it is used for classification, not regression. It serves as the building block for neural networks and many other models.
+
+## Binary Logistic Regression
+
+For binary classification with $y \in \{0, 1\}$, the model estimates:
+
+$$P(y = 1 \mid \mathbf{x}; \mathbf{w}) = \sigma(\mathbf{w}^\top \mathbf{x}) = \frac{1}{1 + e^{-\mathbf{w}^\top \mathbf{x}}}$$
+
+The **sigmoid function** $\sigma(z) = \frac{1}{1+e^{-z}}$ maps any real number to $(0, 1)$ and has the property:
+
+$$\sigma'(z) = \sigma(z)(1 - \sigma(z))$$
+
+## Maximum Likelihood Estimation
+
+The likelihood for $N$ i.i.d. observations:
+
+$$\mathcal{L}(\mathbf{w}) = \prod_{i=1}^{N} \sigma(\mathbf{w}^\top \mathbf{x}_i)^{y_i} (1 - \sigma(\mathbf{w}^\top \mathbf{x}_i))^{1 - y_i}$$
+
+The **negative log-likelihood** (binary cross-entropy loss):
+
+$$\mathcal{J}(\mathbf{w}) = -\frac{1}{N}\sum_{i=1}^{N}\left[y_i \log \hat{p}_i + (1 - y_i)\log(1 - \hat{p}_i)\right]$$
+
+where $\hat{p}_i = \sigma(\mathbf{w}^\top \mathbf{x}_i)$.
+
+## Gradient Computation
+
+The gradient of the loss with respect to $\mathbf{w}$:
+
+$$\nabla_{\mathbf{w}} \mathcal{J} = \frac{1}{N}\sum_{i=1}^{N}(\hat{p}_i - y_i)\mathbf{x}_i = \frac{1}{N}\mathbf{X}^\top(\hat{\mathbf{p}} - \mathbf{y})$$
+
+This remarkably simple form matches the OLS gradient, making implementation straightforward.
+
+## Multi-class Extension: Softmax Regression
+
+For $K$ classes, the **softmax function** generalizes the sigmoid:
+
+$$P(y = k \mid \mathbf{x}) = \frac{e^{\mathbf{w}_k^\top \mathbf{x}}}{\sum_{j=1}^{K} e^{\mathbf{w}_j^\top \mathbf{x}}}$$
+
+The multi-class cross-entropy loss:
+
+$$\mathcal{J} = -\frac{1}{N}\sum_{i=1}^{N}\sum_{k=1}^{K} \mathbb{1}[y_i = k] \log P(y_i = k \mid \mathbf{x}_i)$$
+
+## Python Implementation
+
+```python
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, classification_report
+
+# Custom logistic regression with gradient descent
+class LogisticRegressionGD:
+    def __init__(self, lr=0.01, n_iters=1000, reg_lambda=0.0):
+        self.lr = lr
+        self.n_iters = n_iters
+        self.reg_lambda = reg_lambda
+
+    def sigmoid(self, z):
+        return 1 / (1 + np.exp(-np.clip(z, -500, 500)))
+
+    def fit(self, X, y):
+        n_samples, n_features = X.shape
+        self.w = np.zeros(n_features)
+        self.b = 0
+
+        for _ in range(self.n_iters):
+            z = X @ self.w + self.b
+            p = self.sigmoid(z)
+            dw = (1/n_samples) * X.T @ (p - y) + self.reg_lambda * self.w
+            db = (1/n_samples) * np.sum(p - y)
+            self.w -= self.lr * dw
+            self.b -= self.lr * db
+
+    def predict_proba(self, X):
+        return self.sigmoid(X @ self.w + self.b)
+
+    def predict(self, X):
+        return (self.predict_proba(X) >= 0.5).astype(int)
+
+# Generate data and train
+X, y = make_classification(n_samples=500, n_features=10, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+model = LogisticRegressionGD(lr=0.1, n_iters=2000, reg_lambda=0.01)
+model.fit(X_train, y_train)
+print(f"Custom model accuracy: {accuracy_score(y_test, model.predict(X_test)):.4f}")
+
+# scikit-learn comparison
+sk_model = LogisticRegression(max_iter=2000)
+sk_model.fit(X_train, y_train)
+print(f"sklearn accuracy: {accuracy_score(y_test, sk_model.predict(X_test)):.4f}")
+```
+
+## Decision Boundary and Probabilistic Interpretation
+
+The decision boundary is the set where $P(y=1 \mid \mathbf{x}) = 0.5$, i.e., $\mathbf{w}^\top \mathbf{x} = 0$. This is a hyperplane in feature space. The probabilistic output allows for threshold tuning based on the application's cost-sensitive requirements.
+
+## Summary
+
+- Logistic regression uses the sigmoid function to model class probabilities
+- Training minimizes cross-entropy loss via gradient descent
+- The gradient has the same form as linear regression: $\mathbf{X}^\top(\hat{\mathbf{p}} - \mathbf{y})/N$
+- Softmax extends logistic regression to multi-class problems
+- Regularization prevents overfitting in high-dimensional settings
+
+## References
+
+1. Murphy, K. P. (2022). *Probabilistic Machine Learning: An Introduction*. MIT Press.
+2. Bishop, C. M. (2006). *Pattern Recognition and Machine Learning*. Springer.
+3. Hastie, T., Tibshirani, R., & Friedman, J. (2009). *The Elements of Statistical Learning*. Springer.

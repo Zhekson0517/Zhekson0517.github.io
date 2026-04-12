@@ -1,0 +1,140 @@
+---
+title: "Decision Trees and Ensemble Methods"
+slug: "decision-trees-ensemble"
+publishedAt: "2025-02-20"
+updatedAt: "2025-03-25"
+category: "Machine Learning"
+tags: ["decision trees", "random forest", "gradient boosting", "XGBoost", "ensemble learning", "machine learning"]
+abstract: "A comprehensive study of decision tree algorithms and ensemble methods, covering ID3/C4.5/CART splitting criteria, bagging, random forests, gradient boosting, and XGBoost with theoretical analysis and practical implementations."
+keywords: ["decision tree", "random forest", "gradient boosting", "XGBoost", "ensemble"]
+---
+
+## Introduction
+
+Decision trees are intuitive, interpretable models that partition feature space into regions. Ensemble methods combine multiple weak learners to create powerful predictors. Together, they form some of the most effective algorithms for tabular data.
+
+## Decision Tree Fundamentals
+
+A decision tree recursively partitions the feature space. At each node, a splitting criterion selects the feature and threshold that best separates the data.
+
+### Splitting Criteria
+
+**Information Gain** (used in ID3/C4.5):
+
+$$\text{Gain}(D, A) = H(D) - \sum_{v \in \text{values}(A)} \frac{|D_v|}{|D|} H(D_v)$$
+
+where entropy $H(D) = -\sum_{k=1}^{K} p_k \log_2 p_k$.
+
+**Gini Impurity** (used in CART):
+
+$$\text{Gini}(D) = 1 - \sum_{k=1}^{K} p_k^2$$
+
+CART selects the split that maximizes the reduction in Gini impurity:
+
+$$\Delta \text{Gini} = \text{Gini}(D) - \frac{|D_L|}{|D|}\text{Gini}(D_L) - \frac{|D_R|}{|D|}\text{Gini}(D_R)$$
+
+### Pruning
+
+To prevent overfitting, trees are pruned using:
+- **Pre-pruning**: Stop splitting when improvement falls below a threshold
+- **Post-pruning**: Grow full tree, then remove subtrees using cost-complexity pruning:
+
+$$R_\alpha(T) = R(T) + \alpha |T|$$
+
+where $R(T)$ is the training error and $|T|$ is the number of leaves.
+
+## Bagging and Random Forests
+
+**Bagging** (Bootstrap Aggregating) trains multiple trees on bootstrap samples and averages predictions:
+
+$$\hat{f}_{\text{bag}}(\mathbf{x}) = \frac{1}{B}\sum_{b=1}^{B} \hat{f}_b(\mathbf{x})$$
+
+**Random Forests** add feature randomness: at each split, only $m \leq d$ features are considered. This decorrelates trees, reducing ensemble variance:
+
+$$\text{Var}(\hat{f}_{\text{RF}}) = \rho \sigma^2 / B + (1-\rho)\sigma^2 / B$$
+
+where $\rho$ is the correlation between trees. Reducing $\rho$ through feature subsampling is the key insight.
+
+## Gradient Boosting
+
+Boosting builds trees sequentially, each fitting the residual errors of the ensemble. Given loss $\mathcal{L}(y, F(\mathbf{x}))$:
+
+$$F^{(t)}(\mathbf{x}) = F^{(t-1)}(\mathbf{x}) + \eta \, h_t(\mathbf{x})$$
+
+where $h_t$ is fit to the **pseudo-residuals**:
+
+$$r_i^{(t)} = -\frac{\partial \mathcal{L}(y_i, F(\mathbf{x}_i))}{\partial F(\mathbf{x}_i)}\bigg|_{F=F^{(t-1)}}$$
+
+For squared error loss, the pseudo-residuals are simply $r_i = y_i - F^{(t-1)}(\mathbf{x}_i)$.
+
+## XGBoost
+
+XGBoost optimizes a regularized objective:
+
+$$\mathcal{J}^{(t)} = \sum_{i=1}^{N} \mathcal{L}(y_i, \hat{y}_i^{(t-1)} + f_t(\mathbf{x}_i)) + \Omega(f_t)$$
+
+where $\Omega(f) = \gamma T + \frac{1}{2}\lambda \|\mathbf{w}\|^2$ penalizes tree complexity.
+
+Using a second-order Taylor expansion:
+
+$$\mathcal{J}^{(t)} \approx \sum_{i=1}^{N} [g_i f_t(\mathbf{x}_i) + \frac{1}{2}h_i f_t^2(\mathbf{x}_i)] + \Omega(f_t)$$
+
+where $g_i = \partial_{\hat{y}} \mathcal{L}$ and $h_i = \partial_{\hat{y}}^2 \mathcal{L}$.
+
+The optimal weight for leaf $j$:
+
+$$w_j^* = -\frac{\sum_{i \in I_j} g_i}{\sum_{i \in I_j} h_i + \lambda}$$
+
+## Python Implementation
+
+```python
+import numpy as np
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.datasets import make_moons
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.metrics import accuracy_score
+
+# Generate nonlinear classification data
+X, y = make_moons(n_samples=500, noise=0.3, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+# Single decision tree
+dt = DecisionTreeClassifier(max_depth=5, random_state=42)
+dt.fit(X_train, y_train)
+print(f"Decision Tree: {accuracy_score(y_test, dt.predict(X_test)):.4f}")
+
+# Random Forest
+rf = RandomForestClassifier(n_estimators=100, max_depth=8, random_state=42)
+rf.fit(X_train, y_train)
+print(f"Random Forest: {accuracy_score(y_test, rf.predict(X_test)):.4f}")
+
+# Gradient Boosting
+gb = GradientBoostingClassifier(
+    n_estimators=100, max_depth=3, learning_rate=0.1, random_state=42
+)
+gb.fit(X_train, y_train)
+print(f"Gradient Boosting: {accuracy_score(y_test, gb.predict(X_test)):.4f}")
+
+# Cross-validation comparison
+for name, model in [('DT', dt), ('RF', rf), ('GB', gb)]:
+    scores = cross_val_score(model, X, y, cv=5)
+    print(f"{name} CV: {scores.mean():.4f} ± {scores.std():.4f}")
+
+# Feature importance
+print("RF feature importances:", rf.feature_importances_)
+```
+
+## Summary
+
+- Decision trees partition feature space via recursive splitting
+- Gini impurity and information gain are common splitting criteria
+- Random forests reduce variance through bootstrap sampling and feature subsampling
+- Gradient boosting reduces bias by sequentially fitting residuals
+- XGBoost adds second-order optimization and regularization for state-of-the-art performance
+
+## References
+
+1. Breiman, L. (2001). Random Forests. *Machine Learning*, 45(1), 5–32.
+2. Friedman, J. H. (2001). Greedy Function Approximation: A Gradient Boosting Machine. *Annals of Statistics*, 29(5), 1189–1232.
+3. Chen, T., & Guestrin, C. (2016). XGBoost: A Scalable Tree Boosting System. *KDD*.

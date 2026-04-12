@@ -1,0 +1,102 @@
+---
+title: "Linear Algebra Foundations for Machine Learning"
+slug: "linear-algebra"
+publishedAt: "2025-01-15"
+updatedAt: "2025-03-10"
+category: "Mathematics"
+tags: ["linear algebra", "matrices", "eigenvalues", "SVD", "mathematics"]
+abstract: "A comprehensive review of linear algebra concepts essential for machine learning, including vector spaces, matrix decompositions, eigenvalue problems, and singular value decomposition with applications to dimensionality reduction."
+keywords: ["linear algebra", "matrix decomposition", "eigenvalues", "SVD", "PCA"]
+---
+
+## Introduction
+
+Linear algebra provides the mathematical foundation for nearly all machine learning algorithms. From representing data as vectors and matrices to understanding transformations and decompositions, a solid grasp of linear algebra is indispensable. This note covers the key concepts and their direct applications in machine learning.
+
+## Vector Spaces and Linear Mappings
+
+A **vector space** $V$ over a field $\mathbb{F}$ is a set equipped with addition and scalar multiplication satisfying closure, associativity, commutativity, and distributivity axioms. In machine learning, we primarily work with $\mathbb{R}^n$.
+
+A **linear mapping** $T: V \to W$ satisfies:
+
+$$T(\alpha \mathbf{u} + \beta \mathbf{v}) = \alpha T(\mathbf{u}) + \beta T(\mathbf{v})$$
+
+Every linear mapping between finite-dimensional vector spaces can be represented as a matrix multiplication.
+
+## Matrix Operations and Properties
+
+For matrices $\mathbf{A} \in \mathbb{R}^{m \times n}$ and $\mathbf{B} \in \mathbb{R}^{n \times p}$, the product $\mathbf{C} = \mathbf{A}\mathbf{B}$ has elements:
+
+$$c_{ij} = \sum_{k=1}^{n} a_{ik} b_{kj}$$
+
+Key properties include:
+- **Transpose**: $(\mathbf{A}\mathbf{B})^\top = \mathbf{B}^\top \mathbf{A}^\top$
+- **Inverse**: $(\mathbf{A}\mathbf{B})^{-1} = \mathbf{B}^{-1} \mathbf{A}^{-1}$
+- **Trace**: $\text{tr}(\mathbf{A}\mathbf{B}) = \text{tr}(\mathbf{B}\mathbf{A})$
+
+## Eigenvalue Decomposition
+
+For a square matrix $\mathbf{A} \in \mathbb{R}^{n \times n}$, if there exists a nonzero vector $\mathbf{v}$ and scalar $\lambda$ such that:
+
+$$\mathbf{A}\mathbf{v} = \lambda \mathbf{v}$$
+
+then $\lambda$ is an **eigenvalue** and $\mathbf{v}$ is the corresponding **eigenvector**. For a symmetric matrix $\mathbf{A} = \mathbf{A}^\top$, the eigendecomposition is:
+
+$$\mathbf{A} = \mathbf{Q} \mathbf{\Lambda} \mathbf{Q}^\top$$
+
+where $\mathbf{Q}$ is orthogonal and $\mathbf{\Lambda}$ is diagonal.
+
+## Singular Value Decomposition (SVD)
+
+Any matrix $\mathbf{A} \in \mathbb{R}^{m \times n}$ can be decomposed as:
+
+$$\mathbf{A} = \mathbf{U} \mathbf{\Sigma} \mathbf{V}^\top$$
+
+where $\mathbf{U} \in \mathbb{R}^{m \times m}$ and $\mathbf{V} \in \mathbb{R}^{n \times n}$ are orthogonal, and $\mathbf{\Sigma} \in \mathbb{R}^{m \times n}$ is diagonal with singular values $\sigma_1 \geq \sigma_2 \geq \cdots \geq 0$.
+
+The **rank-$k$ approximation** minimizes $\|\mathbf{A} - \mathbf{A}_k\|_F$ and is given by truncating to the top $k$ singular values.
+
+## Python Implementation
+
+```python
+import numpy as np
+from numpy.linalg import eig, svd
+
+# Eigendecomposition of symmetric matrix
+A = np.array([[4, 2], [2, 3]])
+eigenvalues, eigenvectors = eig(A)
+print("Eigenvalues:", eigenvalues)
+print("Eigenvectors:\n", eigenvectors)
+
+# SVD for dimensionality reduction
+X = np.random.randn(100, 50)  # 100 samples, 50 features
+U, sigma, Vt = svd(X, full_matrices=False)
+
+# Rank-k approximation (k=10)
+k = 10
+X_reduced = U[:, :k] @ np.diag(sigma[:k])
+print(f"Original shape: {X.shape}")
+print(f"Reduced shape: {X_reduced.shape}")
+print(f"Variance retained: {np.sum(sigma[:k]**2) / np.sum(sigma**2):.4f}")
+```
+
+## Application: Principal Component Analysis
+
+PCA uses SVD to find the directions of maximum variance. Given centered data $\mathbf{X}$, the principal components are the columns of $\mathbf{V}$ corresponding to the largest singular values. The projection is:
+
+$$\mathbf{Z} = \mathbf{X} \mathbf{V}_k$$
+
+where $\mathbf{V}_k$ contains the top $k$ right singular vectors.
+
+## Summary
+
+- Linear algebra provides the language and tools for representing and manipulating data in ML
+- Eigendecomposition reveals intrinsic structure in square matrices
+- SVD generalizes eigendecomposition to arbitrary matrices and enables dimensionality reduction
+- PCA is a direct application of SVD for feature extraction
+
+## References
+
+1. Strang, G. (2016). *Introduction to Linear Algebra*. 5th ed. Wellesley-Cambridge Press.
+2. Golub, G. H., & Van Loan, C. F. (2013). *Matrix Computations*. 4th ed. Johns Hopkins University Press.
+3. Bishop, C. M. (2006). *Pattern Recognition and Machine Learning*. Springer.

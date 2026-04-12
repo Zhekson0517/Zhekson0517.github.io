@@ -1,0 +1,168 @@
+---
+title: "Model Evaluation and Selection"
+slug: "model-evaluation"
+publishedAt: "2025-03-01"
+updatedAt: "2025-03-30"
+category: "Machine Learning"
+tags: ["cross-validation", "metrics", "ROC", "bias-variance", "model selection", "machine learning"]
+abstract: "A systematic guide to evaluating and selecting machine learning models, covering cross-validation strategies, classification and regression metrics, ROC/PR curves, hyperparameter tuning, and statistical significance testing."
+keywords: ["cross-validation", "ROC AUC", "precision recall", "hyperparameter tuning", "model selection"]
+---
+
+## Introduction
+
+Proper model evaluation is crucial for building reliable machine learning systems. This note covers the methodology for assessing model performance, comparing models, and selecting the best configuration through principled approaches.
+
+## Cross-Validation
+
+### K-Fold Cross-Validation
+
+The dataset is split into $K$ folds. For each fold $k$, train on the remaining $K-1$ folds and evaluate on fold $k$:
+
+$$\text{CV}_K = \frac{1}{K}\sum_{k=1}^{K} \mathcal{L}_k$$
+
+Typical choices: $K = 5$ or $K = 10$. The standard error of CV is approximately:
+
+$$\text{SE} = \frac{\sigma_{\text{CV}}}{\sqrt{K}}$$
+
+### Stratified K-Fold
+
+For imbalanced datasets, stratified CV maintains class proportions in each fold, ensuring reliable performance estimates.
+
+### Leave-One-Out (LOO)
+
+LOO is $K = N$ fold CV. It provides an approximately unbiased estimate but has high variance:
+
+$$\text{LOO-CV} = \frac{1}{N}\sum_{i=1}^{N} \mathcal{L}(y_i, \hat{f}^{-i}(\mathbf{x}_i))$$
+
+## Classification Metrics
+
+### Confusion Matrix
+
+| | Predicted + | Predicted - |
+|---|---|---|
+| Actual + | TP | FN |
+| Actual - | FP | TN |
+
+### Key Metrics
+
+- **Accuracy**: $\frac{TP + TN}{TP + TN + FP + FN}$
+- **Precision**: $\frac{TP}{TP + FP}$
+- **Recall (Sensitivity)**: $\frac{TP}{TP + FN}$
+- **F1-Score**: $\frac{2 \cdot \text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}$
+- **Specificity**: $\frac{TN}{TN + FP}$
+
+### ROC Curve and AUC
+
+The **ROC curve** plots TPR vs FPR at different thresholds. The **AUC** summarizes performance:
+
+$$\text{AUC} = P(f(\mathbf{x}_+) > f(\mathbf{x}_-))$$
+
+AUC has a probabilistic interpretation: the probability that a randomly chosen positive has a higher score than a randomly chosen negative.
+
+## Regression Metrics
+
+- **MSE**: $\frac{1}{N}\sum_{i=1}^{N}(y_i - \hat{y}_i)^2$
+- **RMSE**: $\sqrt{\text{MSE}}$
+- **MAE**: $\frac{1}{N}\sum_{i=1}^{N}|y_i - \hat{y}_i|$
+- **$R^2$**: $1 - \frac{SS_{res}}{SS_{tot}}$
+- **Adjusted $R^2$**: $1 - (1-R^2)\frac{N-1}{N-p-1}$
+
+## Hyperparameter Tuning
+
+### Grid Search
+
+Exhaustively evaluates all combinations in a predefined grid. Computational cost: $O(\prod_{j} |H_j|)$ where $H_j$ is the set of values for hyperparameter $j$.
+
+### Random Search
+
+Samples from a distribution for each hyperparameter. More efficient than grid search when only a few hyperparameters matter:
+
+$$P(\text{finding top-5\% config in } T \text{ trials}) \geq 1 - (0.95)^T$$
+
+### Bayesian Optimization
+
+Models the objective function with a surrogate (typically Gaussian Process) and uses an acquisition function to select promising hyperparameters:
+
+$$\mathbf{x}_{\text{next}} = \arg\max_{\mathbf{x}} \alpha(\mathbf{x} \mid \mathcal{D}_{1:t})$$
+
+Common acquisition functions: Expected Improvement, Upper Confidence Bound, Thompson Sampling.
+
+## Python Implementation
+
+```python
+import numpy as np
+from sklearn.datasets import make_classification
+from sklearn.model_selection import (train_test_split, cross_val_score,
+                                     StratifiedKFold, GridSearchCV,
+                                     RandomizedSearchCV)
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
+from sklearn.metrics import (accuracy_score, precision_score, recall_score,
+                             f1_score, roc_auc_score, roc_curve,
+                             classification_report)
+import warnings
+warnings.filterwarnings('ignore')
+
+# Generate imbalanced classification data
+X, y = make_classification(n_samples=1000, n_features=20,
+                           n_informative=10, weights=[0.7, 0.3],
+                           random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+# Compare models with stratified CV
+models = {
+    'Logistic Regression': LogisticRegression(max_iter=1000),
+    'Random Forest': RandomForestClassifier(n_estimators=100),
+    'SVM (RBF)': SVC(kernel='rbf', probability=True),
+}
+
+cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+for name, model in models.items():
+    scores = cross_val_score(model, X_train, y_train, cv=cv, scoring='f1')
+    print(f"{name}: F1={scores.mean():.4f} ± {scores.std():.4f}")
+
+# Hyperparameter tuning for Random Forest
+param_dist = {
+    'n_estimators': [50, 100, 200],
+    'max_depth': [5, 10, 20, None],
+    'min_samples_split': [2, 5, 10],
+}
+search = RandomizedSearchCV(
+    RandomForestClassifier(random_state=42), param_dist,
+    n_iter=20, cv=cv, scoring='f1', random_state=42
+)
+search.fit(X_train, y_train)
+print(f"\nBest RF params: {search.best_params_}")
+print(f"Best CV F1: {search.best_score_:.4f}")
+
+# Final evaluation
+best_model = search.best_estimator_
+y_pred = best_model.predict(X_test)
+y_proba = best_model.predict_proba(X_test)[:, 1]
+print(f"\nTest F1: {f1_score(y_test, y_pred):.4f}")
+print(f"Test AUC: {roc_auc_score(y_test, y_proba):.4f}")
+print(classification_report(y_test, y_pred))
+```
+
+## Statistical Significance Testing
+
+When comparing two models, use paired tests:
+- **Paired t-test**: Compare CV scores across folds
+- **McNemar's test**: Compare classification errors on the same test set
+- **5×2 CV paired t-test**: More robust than simple paired t-test
+
+## Summary
+
+- Cross-validation provides reliable performance estimates
+- Choose metrics appropriate for the problem (F1 for imbalanced, AUC for ranking)
+- Random search is often more efficient than grid search
+- Bayesian optimization is state-of-the-art for expensive evaluations
+- Statistical tests confirm whether performance differences are significant
+
+## References
+
+1. Hastie, T., Tibshirani, R., & Friedman, J. (2009). *The Elements of Statistical Learning*. Springer.
+2. Bergstra, J., & Bengio, Y. (2012). Random Search for Hyper-Parameter Optimization. *JMLR*, 13, 281–305.
+3. Dietterich, T. G. (1998). Approximate Statistical Tests for Comparing Supervised Classification Learning Algorithms. *Neural Computation*, 10(7), 1895–1923.

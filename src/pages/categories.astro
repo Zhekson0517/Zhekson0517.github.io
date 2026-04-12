@@ -1,0 +1,46 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allNotes = await getCollection('notes');
+const categoryMap: Record<string, number> = {};
+allNotes.forEach(note => {
+  categoryMap[note.data.category] = (categoryMap[note.data.category] || 0) + 1;
+});
+
+const sortedCategories = Object.entries(categoryMap).sort((a, b) => b[1] - a[1]);
+const activeCategory = Astro.url.searchParams.get('category');
+
+const filteredNotes = activeCategory
+  ? allNotes.filter(n => n.data.category === activeCategory).sort((a, b) => new Date(b.data.publishedAt).getTime() - new Date(a.data.publishedAt).getTime())
+  : [];
+---
+
+<BaseLayout title="Categories" description="Browse notes by category.">
+  <section class="fade-in">
+    <h1 class="section-title">Categories</h1>
+
+    <div class="tag-cloud">
+      {sortedCategories.map(([cat, count]) => (
+        <a
+          href={activeCategory === cat ? '/categories' : `/categories?category=${encodeURIComponent(cat)}`}
+          class:list={['tag', activeCategory === cat && 'active']}
+        >
+          {cat}<span class="tag-count">({count})</span>
+        </a>
+      ))}
+    </div>
+
+    {activeCategory && (
+      <div style="margin-top: 2em;">
+        <h2>Notes in "{activeCategory}"</h2>
+        {filteredNotes.map(note => (
+          <div class="archive-item">
+            <a href={`/notes/${note.id}`}>{note.data.title}</a>
+            <span class="archive-item-date">{note.data.publishedAt}</span>
+          </div>
+        ))}
+      </div>
+    )}
+  </section>
+</BaseLayout>

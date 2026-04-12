@@ -1,0 +1,131 @@
+---
+title: "Regularization Methods: Preventing Overfitting"
+slug: "regularization"
+publishedAt: "2025-02-15"
+updatedAt: "2025-03-22"
+category: "Machine Learning"
+tags: ["regularization", "L1", "L2", "dropout", "overfitting", "machine learning"]
+abstract: "A systematic study of regularization techniques in machine learning, covering L1/L2 penalties, elastic net, early stopping, dropout, data augmentation, and their theoretical justifications from Bayesian and optimization perspectives."
+keywords: ["regularization", "L1 Lasso", "L2 Ridge", "dropout", "early stopping"]
+---
+
+## Introduction
+
+Regularization prevents overfitting by adding constraints or penalties to the learning process. The bias-variance tradeoff tells us that reducing variance (overfitting) often comes at the cost of increased bias. Regularization techniques navigate this tradeoff systematically.
+
+## The Bias-Variance Decomposition
+
+For a model $\hat{f}$ trained on data $\mathcal{D}$, the expected prediction error decomposes as:
+
+$$\mathbb{E}_{\mathcal{D}}[(y - \hat{f}(\mathbf{x}))^2] = \underbrace{(\mathbb{E}[\hat{f}(\mathbf{x})] - f(\mathbf{x}))^2}_{\text{Bias}^2} + \underbrace{\mathbb{E}[(\hat{f}(\mathbf{x}) - \mathbb{E}[\hat{f}(\mathbf{x})])^2]}_{\text{Variance}} + \sigma^2$$
+
+Regularization reduces variance at the expense of a small increase in bias.
+
+## L2 Regularization (Ridge)
+
+Adds the squared $\ell_2$ norm penalty to the loss:
+
+$$\mathcal{J}_{\text{Ridge}}(\mathbf{w}) = \mathcal{L}(\mathbf{w}) + \frac{\lambda}{2}\|\mathbf{w}\|_2^2$$
+
+For linear regression, the closed-form solution becomes:
+
+$$\hat{\mathbf{w}}_{\text{Ridge}} = (\mathbf{X}^\top \mathbf{X} + \lambda \mathbf{I})^{-1} \mathbf{X}^\top \mathbf{y}$$
+
+**Bayesian interpretation**: L2 regularization corresponds to a Gaussian prior $\mathbf{w} \sim \mathcal{N}(\mathbf{0}, \sigma^2/\lambda \mathbf{I})$.
+
+## L1 Regularization (Lasso)
+
+Adds the $\ell_1$ norm penalty:
+
+$$\mathcal{J}_{\text{Lasso}}(\mathbf{w}) = \mathcal{L}(\mathbf{w}) + \lambda \|\mathbf{w}\|_1$$
+
+Lasso induces **sparsity** — many weights become exactly zero, performing automatic feature selection. This is because the $\ell_1$ ball has corners aligned with coordinate axes.
+
+**Bayesian interpretation**: L1 regularization corresponds to a Laplace prior $p(w_j) \propto \exp(-\lambda|w_j|)$.
+
+## Elastic Net
+
+Combines L1 and L2 penalties:
+
+$$\mathcal{J}_{\text{EN}}(\mathbf{w}) = \mathcal{L}(\mathbf{w}) + \lambda_1 \|\mathbf{w}\|_1 + \frac{\lambda_2}{2}\|\mathbf{w}\|_2^2$$
+
+Elastic net overcomes Lasso's limitations when features are correlated — Lasso tends to select one feature from a correlated group, while elastic net selects the group.
+
+## Early Stopping
+
+Stop training when validation loss stops improving. This is equivalent to L2 regularization in the limit of gradient descent — the number of iterations acts as an implicit regularizer.
+
+For gradient descent on a quadratic loss, after $t$ steps:
+
+$$\mathbf{w}^{(t)} = \sum_{j=1}^{d} \left[1 - (1 - \eta \lambda_j)^t\right] \frac{\mathbf{u}_j^\top \mathbf{y}}{\lambda_j} \mathbf{u}_j$$
+
+Early iterations dampen the high-frequency (small $\lambda_j$) components, similar to Ridge.
+
+## Dropout
+
+For neural networks, dropout randomly sets hidden units to zero with probability $p$ during training:
+
+$$\tilde{h}_j = \frac{r_j}{1-p} h_j, \quad r_j \sim \text{Bernoulli}(1-p)$$
+
+At test time, all units are used with scaling by $(1-p)$. Dropout can be interpreted as:
+- **Ensemble approximation**: Training an exponential number of sub-networks
+- **Noise injection**: Adding multiplicative noise to prevent co-adaptation
+
+## Python Implementation
+
+```python
+import numpy as np
+from sklearn.linear_model import Ridge, Lasso, ElasticNet
+from sklearn.datasets import make_regression
+from sklearn.model_selection import train_test_split, cross_val_score
+
+# Generate high-dimensional sparse data
+X, y, true_coef = make_regression(
+    n_samples=200, n_features=50, n_informative=10,
+    noise=10, coef=True, random_state=42
+)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+# Compare regularization methods
+models = {
+    'Ridge (L2)': Ridge(alpha=10.0),
+    'Lasso (L1)': Lasso(alpha=1.0, max_iter=5000),
+    'ElasticNet': ElasticNet(alpha=1.0, l1_ratio=0.5, max_iter=5000),
+}
+
+for name, model in models.items():
+    model.fit(X_train, y_train)
+    train_score = model.score(X_train, y_train)
+    test_score = model.score(X_test, y_test)
+    n_nonzero = np.sum(np.abs(model.coef_) > 0.01)
+    cv_scores = cross_val_score(model, X_train, y_train, cv=5)
+    print(f"{name}: train={train_score:.4f}, test={test_score:.4f}, "
+          f"nonzero={n_nonzero}, cv={cv_scores.mean():.4f}")
+
+# Custom L2-regularized gradient descent
+def ridge_gd(X, y, alpha=1.0, lr=0.01, n_iters=1000):
+    n, d = X.shape
+    w = np.zeros(d)
+    for _ in range(n_iters):
+        pred = X @ w
+        grad = (X.T @ (pred - y)) / n + alpha * w
+        w -= lr * grad
+    return w
+
+w_ridge = ridge_gd(X_train, y_train, alpha=10.0)
+print(f"Custom Ridge nonzero: {np.sum(np.abs(w_ridge) > 0.01)}")
+```
+
+## Summary
+
+- Regularization controls model complexity to prevent overfitting
+- L2 (Ridge) shrinks weights smoothly; L1 (Lasso) produces sparse solutions
+- Elastic net combines both for correlated feature groups
+- Early stopping acts as implicit regularization in iterative methods
+- Dropout prevents co-adaptation in neural networks
+
+## References
+
+1. Hastie, T., Tibshirani, R., & Friedman, J. (2009). *The Elements of Statistical Learning*. Springer.
+2. Zou, H., & Hastie, T. (2005). Regularization and Variable Selection via the Elastic Net. *JRSS-B*, 67(2), 301–320.
+3. Srivastava, N., et al. (2014). Dropout: A Simple Way to Prevent Neural Networks from Overfitting. *JMLR*, 15, 1929–1958.

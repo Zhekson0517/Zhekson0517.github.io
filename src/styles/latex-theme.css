@@ -1,0 +1,351 @@
+.abstract {
+  margin: 1.5em 0;
+  padding: 1em 2em;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  text-align: center;
+  transition: border-color var(--transition-theme);
+}
+
+.abstract-label {
+  font-family: var(--font-sans);
+  font-size: 11pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-heading);
+  margin-bottom: 0.5em;
+  display: block;
+}
+
+.abstract p {
+  text-indent: 0;
+  font-size: var(--font-size-body);
+  line-height: 1.5;
+  margin-bottom: 0;
+  text-align: justify;
+}
+
+.note-meta {
+  margin-bottom: 1.5em;
+  font-size: var(--font-size-small);
+  color: var(--color-secondary);
+  font-family: var(--font-sans);
+}
+
+.note-meta span {
+  margin-right: 1em;
+}
+
+.note-tags {
+  margin: 1em 0;
+}
+
+.note-tags .tag {
+  font-size: 9pt;
+}
+
+.references {
+  margin-top: 2em;
+  padding-top: 1em;
+  border-top: 1px solid var(--color-border);
+}
+
+.references h2 {
+  font-size: var(--font-size-h3);
+  font-family: var(--font-sans);
+  margin-bottom: 0.8em;
+}
+
+.references ol {
+  padding-left: 2em;
+  font-size: var(--font-size-small);
+  line-height: 1.5;
+}
+
+.references li {
+  margin-bottom: 0.5em;
+}
+
+.note-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2em;
+  padding-top: 1em;
+  border-top: 1px solid var(--color-border);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+}
+
+.note-nav a {
+  color: var(--color-accent);
+  max-width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.note-nav-next {
+  margin-left: auto;
+  text-align: right;
+}
+
+.related-notes {
+  margin-top: 2em;
+  padding-top: 1em;
+  border-top: 1px solid var(--color-border);
+}
+
+.related-notes h3 {
+  font-size: 14pt;
+  font-family: var(--font-sans);
+  margin-bottom: 0.8em;
+}
+
+.related-notes ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.related-notes li {
+  padding: 0.3em 0;
+  border-bottom: 1px dotted var(--color-border);
+}
+
+.related-notes li:last-child {
+  border-bottom: none;
+}
+
+.toc-sidebar {
+  position: sticky;
+  top: 80px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  padding-left: 1.5em;
+  border-left: 1px solid var(--color-border);
+  font-family: var(--font-sans);
+  font-size: 10pt;
+  transition: border-color var(--transition-theme);
+}
+
+.toc-sidebar h3 {
+  font-size: 11pt;
+  font-weight: 700;
+  margin-bottom: 0.8em;
+  color: var(--color-heading);
+}
+
+.toc-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.toc-list li {
+  margin-bottom: 0.4em;
+  padding-left: 0;
+}
+
+.toc-list a {
+  color: var(--color-toc-inactive);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+  display: block;
+  padding: 0.15em 0;
+}
+
+.toc-list a:hover {
+  color: var(--color-accent);
+}
+
+.toc-list a.active {
+  color: var(--color-toc-active);
+  font-weight: 600;
+}
+
+.toc-list .toc-h3 {
+  padding-left: 1em;
+}
+
+.note-layout-grid {
+  display: flex;
+  gap: 2em;
+}
+
+.note-content {
+  flex: 1;
+  min-width: 0;
+  max-width: calc(var(--content-width) - 200px);
+}
+
+.toc-wrapper {
+  width: 200px;
+  flex-shrink: 0;
+}
+
+.giscus-wrapper {
+  margin-top: 2em;
+  padding-top: 1em;
+  border-top: 1px solid var(--color-border);
+}
+
+.home-hero {
+  text-align: center;
+  padding: 3em 0 2em;
+}
+
+.home-hero h1 {
+  font-size: 24pt;
+  font-weight: 700;
+  margin-bottom: 0.3em;
+}
+
+.home-hero .subtitle {
+  font-family: var(--font-sans);
+  font-size: 13pt;
+  color: var(--color-secondary);
+  margin-bottom: 0.5em;
+}
+
+.home-hero .institution {
+  font-style: italic;
+  font-size: var(--font-size-body);
+  color: var(--color-secondary);
+  margin-bottom: 1em;
+}
+
+.home-hero .bio {
+  max-width: 600px;
+  margin: 0 auto 1.5em;
+  text-indent: 0;
+  line-height: 1.6;
+}
+
+.home-links {
+  display: flex;
+  justify-content: center;
+  gap: 1.5em;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+}
+
+.home-links a {
+  color: var(--color-accent);
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--transition-fast);
+}
+
+.home-links a:hover {
+  border-bottom-color: var(--color-accent);
+}
+
+.section-title {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-h2);
+  font-weight: 700;
+  color: var(--color-heading);
+  margin-bottom: 1em;
+  padding-bottom: 0.3em;
+  border-bottom: 2px solid var(--color-accent);
+}
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  margin-bottom: 1em;
+}
+
+.filter-btn {
+  font-family: var(--font-sans);
+  font-size: 10pt;
+  padding: 4px 12px;
+  background: var(--color-tag-bg);
+  color: var(--color-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.filter-btn:hover {
+  background: var(--color-tag-hover);
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.filter-btn.active {
+  background: var(--color-accent);
+  color: var(--color-bg);
+  border-color: var(--color-accent);
+}
+
+.tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em;
+  margin-bottom: 1.5em;
+}
+
+.category-group {
+  margin-bottom: 2em;
+}
+
+.category-group h3 {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-h3);
+  color: var(--color-heading);
+  margin-bottom: 0.5em;
+}
+
+.tag-count {
+  font-size: 9pt;
+  color: var(--color-secondary);
+  margin-left: 0.3em;
+}
+
+.page-404 {
+  text-align: center;
+  padding: 4em 0;
+}
+
+.page-404 h1 {
+  font-size: 72pt;
+  font-weight: 700;
+  color: var(--color-border);
+  font-family: var(--font-serif);
+}
+
+.page-404 p {
+  text-indent: 0;
+  color: var(--color-secondary);
+  margin-bottom: 1.5em;
+}
+
+.page-404 a {
+  font-family: var(--font-sans);
+  color: var(--color-accent);
+  border-bottom: 1px solid var(--color-accent);
+}
+
+[data-theme="dark"] pre {
+  background: #1a1a1a !important;
+}
+
+[data-theme="dark"] .astro-code {
+  background: #1a1a1a !important;
+  color: #e0e0e0;
+}
+
+[data-theme="dark"] th {
+  background: #1a1a1a;
+}
+
+.katex-display {
+  margin: 1em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.katex {
+  font-size: 1.05em !important;
+}

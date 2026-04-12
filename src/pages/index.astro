@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import NoteCard from '../components/NoteCard.astro';
+import { getCollection } from 'astro:content';
+
+const notes = (await getCollection('notes'))
+  .sort((a, b) => new Date(b.data.publishedAt).getTime() - new Date(a.data.publishedAt).getTime())
+  .slice(0, 6);
+---
+
+<BaseLayout title="Zhe's Blog" description="Personal academic blog focusing on machine learning and systems.">
+  <section class="home-hero fade-in">
+    <h1>Zhe</h1>
+    <p class="subtitle">Graduate Student &middot; Machine Learning & Systems</p>
+    <p class="institution">University of Technology</p>
+    <p class="bio">
+      Researching machine learning theory, optimization algorithms, and their applications
+      in real-world systems. Focused on bridging the gap between theoretical foundations
+      and practical implementations.
+    </p>
+    <div class="home-links">
+      <a href="https://github.com/zhe" target="_blank" rel="noopener">GitHub</a>
+      <a href="mailto:zhe@example.com">Email</a>
+      <a href="https://scholar.google.com" target="_blank" rel="noopener">Google Scholar</a>
+      <a href="/notes">All Notes &rarr;</a>
+    </div>
+  </section>
+
+  <section class="fade-in fade-in-delay-2">
+    <h2 class="section-title">Latest Notes</h2>
+    {notes.map(note => (
+      <NoteCard
+        title={note.data.title}
+        href={`/notes/${note.id}`}
+        date={note.data.publishedAt}
+        abstract={note.data.abstract}
+        tags={note.data.tags}
+        category={note.data.category}
+      />
+    ))}
+  </section>
+</BaseLayout>

@@ -1,0 +1,156 @@
+---
+title: "Convolutional Neural Networks"
+slug: "cnn"
+publishedAt: "2025-03-10"
+updatedAt: "2025-04-05"
+category: "Deep Learning"
+tags: ["CNN", "convolution", "pooling", "image classification", "deep learning", "machine learning"]
+abstract: "A comprehensive study of convolutional neural networks covering convolution operations, pooling layers, landmark architectures from LeNet to ResNet, transfer learning, and practical implementation with PyTorch for image classification."
+keywords: ["CNN", "convolution", "ResNet", "transfer learning", "image classification"]
+---
+
+## Introduction
+
+Convolutional Neural Networks (CNNs) exploit the spatial structure of images through local connectivity and weight sharing. Since LeCun's LeNet-5, CNNs have dominated computer vision, evolving from simple architectures to sophisticated designs like ResNet and EfficientNet.
+
+## Convolution Operation
+
+The 2D convolution of input $\mathbf{X}$ with kernel $\mathbf{K}$:
+
+$$(\mathbf{X} * \mathbf{K})_{ij} = \sum_{m}\sum_{n} X_{i+m, j+n} \cdot K_{m,n}$$
+
+### Output Size
+
+For input $W \times H$, kernel $K \times K$, stride $S$, padding $P$:
+
+$$O = \frac{W - K + 2P}{S} + 1$$
+
+### Parameter Efficiency
+
+A fully connected layer from $28 \times 28$ to $512$ units requires $28 \times 28 \times 512 = 401{,}408$ parameters. A $5 \times 5$ convolutional layer producing 32 feature maps requires only $5 \times 5 \times 1 \times 32 + 32 = 832$ parameters.
+
+## Pooling Layers
+
+Pooling reduces spatial dimensions and provides translation invariance:
+
+- **Max pooling**: $y_{ij} = \max_{(m,n) \in \mathcal{R}_{ij}} x_{mn}$
+- **Average pooling**: $y_{ij} = \frac{1}{|\mathcal{R}|}\sum_{(m,n) \in \mathcal{R}_{ij}} x_{mn}$
+
+Global average pooling replaces fully connected layers by averaging each feature map to a single value, reducing overfitting.
+
+## Landmark Architectures
+
+### LeNet-5 (1998)
+$5 \times 5$ convolutions → $2 \times 2$ pooling → FC layers. ~60K parameters.
+
+### AlexNet (2012)
+Deeper network with ReLU, dropout, data augmentation. ~60M parameters. Won ILSVRC 2012 with top-5 error of 16.4%.
+
+### VGGNet (2014)
+Key insight: stacked $3 \times 3$ convolutions have the same receptive field as a $7 \times 7$ convolution but with fewer parameters and more nonlinearity:
+
+$$\text{RF}(3 \times 3, 3 \times 3) = 5 \times 5, \quad \text{RF}(3 \times 3, 3 \times 3, 3 \times 3) = 7 \times 7$$
+
+### ResNet (2015)
+
+The **residual connection** enables training very deep networks:
+
+$$\mathbf{y} = \mathcal{F}(\mathbf{x}, \{W_i\}) + \mathbf{x}$$
+
+This addresses the degradation problem: deeper networks should not perform worse than shallower ones (the identity mapping is a special case of $\mathcal{F}(\mathbf{x}) = \mathbf{0}$).
+
+## Transfer Learning
+
+Pre-trained CNN features generalize well. Common strategies:
+
+1. **Feature extraction**: Freeze convolutional layers, train only the classifier
+2. **Fine-tuning**: Unfreeze some layers and train with a small learning rate
+
+The intuition: early layers learn generic features (edges, textures), while later layers learn task-specific features.
+
+## Python Implementation
+
+```python
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import DataLoader
+from torchvision import datasets, transforms, models
+
+# Data augmentation and preprocessing
+transform_train = transforms.Compose([
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomCrop(32, padding=4),
+    transforms.ToTensor(),
+    transforms.Normalize((0.4914, 0.4822, 0.4465),
+                         (0.2470, 0.2435, 0.2616)),
+])
+
+transform_test = transforms.Compose([
+    transforms.ToTensor(),
+    transforms.Normalize((0.4914, 0.4822, 0.4465),
+                         (0.2470, 0.2435, 0.2616)),
+])
+
+# Load CIFAR-10
+train_ds = datasets.CIFAR10(root='./data', train=True,
+                            download=True, transform=transform_train)
+test_ds = datasets.CIFAR10(root='./data', train=False,
+                           download=True, transform=transform_test)
+train_loader = DataLoader(train_ds, batch_size=128, shuffle=True)
+test_loader = DataLoader(test_ds, batch_size=100)
+
+# Simple CNN
+class SimpleCNN(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.features = nn.Sequential(
+            nn.Conv2d(3, 32, 3, padding=1), nn.ReLU(),
+            nn.MaxPool2d(2),
+            nn.Conv2d(32, 64, 3, padding=1), nn.ReLU(),
+            nn.MaxPool2d(2),
+            nn.Conv2d(64, 128, 3, padding=1), nn.ReLU(),
+            nn.AdaptiveAvgPool2d(1),
+        )
+        self.classifier = nn.Linear(128, 10)
+
+    def forward(self, x):
+        x = self.features(x)
+        x = x.view(x.size(0), -1)
+        return self.classifier(x)
+
+model = SimpleCNN()
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+# Training loop (abbreviated)
+for epoch in range(10):
+    model.train()
+    for X_batch, y_batch in train_loader:
+        optimizer.zero_grad()
+        loss = criterion(model(X_batch), y_batch)
+        loss.backward()
+        optimizer.step()
+
+# Transfer learning with ResNet
+resnet = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
+resnet.fc = nn.Linear(resnet.fc.in_features, 10)
+for param in resnet.parameters():
+    param.requires_grad = False
+for param in resnet.fc.parameters():
+    param.requires_grad = True
+```
+
+## Summary
+
+- CNNs exploit spatial structure through local connectivity and weight sharing
+- Pooling provides translation invariance and reduces dimensionality
+- Residual connections enable training of very deep networks
+- Transfer learning leverages pre-trained features for new tasks
+- Data augmentation is essential for preventing overfitting in vision tasks
+
+## References
+
+1. LeCun, Y., et al. (1998). Gradient-Based Learning Applied to Document Recognition. *Proceedings of the IEEE*, 86(11), 2278–2324.
+2. He, K., et al. (2016). Deep Residual Learning for Image Recognition. *CVPR*.
+3. Simonyan, K., & Zisserman, A. (2015). Very Deep Convolutional Networks for Large-Scale Image Recognition. *ICLR*.

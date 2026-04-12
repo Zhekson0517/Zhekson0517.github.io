@@ -1,0 +1,116 @@
+---
+title: "Linear Regression: Theory and Practice"
+slug: "linear-regression"
+publishedAt: "2025-02-01"
+updatedAt: "2025-03-15"
+category: "Machine Learning"
+tags: ["linear regression", "OLS", "gradient descent", "regression", "machine learning"]
+abstract: "A thorough treatment of linear regression from both statistical and optimization perspectives, covering ordinary least squares, gradient descent solutions, regularization extensions, and practical implementation with scikit-learn."
+keywords: ["linear regression", "OLS", "normal equation", "gradient descent", "R-squared"]
+---
+
+## Introduction
+
+Linear regression is one of the most fundamental models in statistics and machine learning. It models the relationship between a dependent variable $\mathbf{y}$ and one or more independent variables $\mathbf{X}$ through a linear function. Despite its simplicity, linear regression provides the foundation for understanding more complex models.
+
+## Problem Formulation
+
+Given training data $\{(\mathbf{x}_i, y_i)\}_{i=1}^{N}$ where $\mathbf{x}_i \in \mathbb{R}^d$, the linear regression model is:
+
+$$\hat{y}_i = \mathbf{w}^\top \mathbf{x}_i + b = \tilde{\mathbf{w}}^\top \tilde{\mathbf{x}}_i$$
+
+where $\tilde{\mathbf{w}} = [b, \mathbf{w}]^\top$ and $\tilde{\mathbf{x}}_i = [1, \mathbf{x}_i]^\top$ absorb the bias term.
+
+## Ordinary Least Squares (OLS)
+
+The OLS estimator minimizes the sum of squared residuals:
+
+$$\mathcal{L}(\mathbf{w}) = \frac{1}{2N} \sum_{i=1}^{N}(y_i - \mathbf{w}^\top \mathbf{x}_i)^2 = \frac{1}{2N}\|\mathbf{y} - \mathbf{X}\mathbf{w}\|^2$$
+
+### Closed-Form Solution (Normal Equation)
+
+Setting $\nabla_{\mathbf{w}} \mathcal{L} = 0$:
+
+$$\hat{\mathbf{w}} = (\mathbf{X}^\top \mathbf{X})^{-1} \mathbf{X}^\top \mathbf{y}$$
+
+This solution exists and is unique when $\mathbf{X}^\top \mathbf{X}$ is invertible.
+
+### Statistical Properties
+
+Under the Gauss-Markov assumptions ($\mathbb{E}[\boldsymbol{\epsilon}] = \mathbf{0}$, $\text{Var}[\boldsymbol{\epsilon}] = \sigma^2 \mathbf{I}$), the OLS estimator is **BLUE** (Best Linear Unbiased Estimator):
+
+$$\mathbb{E}[\hat{\mathbf{w}}] = \mathbf{w}, \quad \text{Var}[\hat{\mathbf{w}}] = \sigma^2 (\mathbf{X}^\top \mathbf{X})^{-1}$$
+
+## Gradient Descent Solution
+
+For large-scale problems where the normal equation is computationally expensive ($O(d^3 + Nd^2)$), gradient descent offers an iterative alternative:
+
+$$\mathbf{w}^{(t+1)} = \mathbf{w}^{(t)} - \eta \nabla_{\mathbf{w}} \mathcal{L}$$
+
+where the gradient is:
+
+$$\nabla_{\mathbf{w}} \mathcal{L} = \frac{1}{N}\mathbf{X}^\top(\mathbf{X}\mathbf{w} - \mathbf{y})$$
+
+## Python Implementation
+
+```python
+import numpy as np
+from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+# Generate synthetic data
+np.random.seed(42)
+n_samples, n_features = 200, 5
+X = np.random.randn(n_samples, n_features)
+true_w = np.array([3.0, -1.5, 2.0, 0.0, 4.0])
+y = X @ true_w + np.random.randn(n_samples) * 0.5
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+# Closed-form OLS
+X_b = np.c_[np.ones(len(X_train)), X_train]
+w_ols = np.linalg.inv(X_b.T @ X_b) @ X_b.T @ y_train
+print("OLS weights:", w_ols[1:])
+print("OLS bias:", w_ols[0])
+
+# Gradient descent
+w_gd = np.zeros(X_b.shape[1])
+lr = 0.01
+for epoch in range(1000):
+    gradient = X_b.T @ (X_b @ w_gd - y_train) / len(y_train)
+    w_gd -= lr * gradient
+print("GD weights:", w_gd[1:])
+
+# scikit-learn
+model = LinearRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+print(f"R-squared: {r2_score(y_test, y_pred):.4f}")
+print(f"MSE: {mean_squared_error(y_test, y_pred):.4f}")
+
+# Ridge regression (L2 regularization)
+ridge = Ridge(alpha=1.0)
+ridge.fit(X_train, y_train)
+print(f"Ridge R-squared: {ridge.score(X_test, y_test):.4f}")
+```
+
+## Model Evaluation
+
+Key metrics for regression:
+- **$R^2$ (coefficient of determination)**: $R^2 = 1 - \frac{SS_{res}}{SS_{tot}}$
+- **MSE**: $\text{MSE} = \frac{1}{N}\sum_{i=1}^{N}(y_i - \hat{y}_i)^2$
+- **MAE**: $\text{MAE} = \frac{1}{N}\sum_{i=1}^{N}|y_i - \hat{y}_i|$
+
+## Summary
+
+- Linear regression models linear relationships via OLS or gradient descent
+- The normal equation provides a closed-form solution but is $O(d^3)$
+- Gradient descent scales better to large datasets
+- Regularization (Ridge/Lasso) prevents overfitting by penalizing weight magnitude
+
+## References
+
+1. Hastie, T., Tibshirani, R., & Friedman, J. (2009). *The Elements of Statistical Learning*. 2nd ed. Springer.
+2. Bishop, C. M. (2006). *Pattern Recognition and Machine Learning*. Springer.
+3. Murphy, K. P. (2022). *Probabilistic Machine Learning: An Introduction*. MIT Press.

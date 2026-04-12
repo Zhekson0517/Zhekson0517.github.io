@@ -1,0 +1,152 @@
+---
+title: "Neural Network Fundamentals"
+slug: "neural-networks"
+publishedAt: "2025-03-05"
+updatedAt: "2025-04-01"
+category: "Deep Learning"
+tags: ["neural networks", "backpropagation", "activation functions", "deep learning", "machine learning"]
+abstract: "Foundations of artificial neural networks covering perceptrons, multilayer architectures, activation functions, backpropagation algorithm, weight initialization, and universal approximation theorems with PyTorch implementation."
+keywords: ["neural network", "backpropagation", "activation function", "universal approximation", "PyTorch"]
+---
+
+## Introduction
+
+Neural networks are function approximators inspired by biological neurons. They form the backbone of deep learning and have achieved remarkable success across vision, language, and decision-making tasks. This note covers the mathematical foundations from single neurons to deep networks.
+
+## Single Neuron (Perceptron)
+
+A single neuron computes:
+
+$$y = \sigma\left(\sum_{j=1}^{d} w_j x_j + b\right) = \sigma(\mathbf{w}^\top \mathbf{x} + b)$$
+
+where $\sigma$ is a nonlinear activation function. The perceptron learning rule updates weights on misclassified examples:
+
+$$\mathbf{w} \leftarrow \mathbf{w} + \eta(y_i - \hat{y}_i)\mathbf{x}_i$$
+
+## Activation Functions
+
+| Function | Formula | Range | Gradient |
+|---|---|---|---|
+| Sigmoid | $\sigma(z) = \frac{1}{1+e^{-z}}$ | $(0,1)$ | $\sigma(1-\sigma)$ |
+| Tanh | $\tanh(z)$ | $(-1,1)$ | $1-\tanh^2(z)$ |
+| ReLU | $\max(0,z)$ | $[0,\infty)$ | $\mathbb{1}_{z>0}$ |
+| Leaky ReLU | $\max(\alpha z, z)$ | $(-\infty,\infty)$ | $\alpha$ if $z<0$, else $1$ |
+| GELU | $z\Phi(z)$ | $(-\infty,\infty)$ | $\Phi(z) + z\phi(z)$ |
+
+ReLU is the default choice due to its simplicity and effectiveness against vanishing gradients. The **dying ReLU** problem (neurons stuck at zero) motivates Leaky ReLU and ELU.
+
+## Multilayer Perceptron (MLP)
+
+An $L$-layer MLP computes:
+
+$$\mathbf{h}^{(l)} = \sigma\left(\mathbf{W}^{(l)} \mathbf{h}^{(l-1)} + \mathbf{b}^{(l)}\right), \quad l = 1, \ldots, L$$
+
+where $\mathbf{h}^{(0)} = \mathbf{x}$ is the input and $\mathbf{h}^{(L)}$ is the output.
+
+## Backpropagation
+
+Backpropagation efficiently computes gradients using the chain rule. Define the error signal at layer $l$:
+
+$$\boldsymbol{\delta}^{(l)} = \frac{\partial \mathcal{L}}{\partial \mathbf{z}^{(l)}}$$
+
+where $\mathbf{z}^{(l)} = \mathbf{W}^{(l)}\mathbf{h}^{(l-1)} + \mathbf{b}^{(l)}$.
+
+**Forward pass**: Compute $\mathbf{h}^{(1)}, \ldots, \mathbf{h}^{(L)}$ layer by layer.
+
+**Backward pass**:
+$$\boldsymbol{\delta}^{(L)} = \nabla_{\mathbf{h}^{(L)}} \mathcal{L} \odot \sigma'(\mathbf{z}^{(L)})$$
+$$\boldsymbol{\delta}^{(l)} = \left((\mathbf{W}^{(l+1)})^\top \boldsymbol{\delta}^{(l+1)}\right) \odot \sigma'(\mathbf{z}^{(l)})$$
+
+**Parameter gradients**:
+$$\frac{\partial \mathcal{L}}{\partial \mathbf{W}^{(l)}} = \boldsymbol{\delta}^{(l)} (\mathbf{h}^{(l-1)})^\top, \quad \frac{\partial \mathcal{L}}{\partial \mathbf{b}^{(l)}} = \boldsymbol{\delta}^{(l)}$$
+
+## Universal Approximation Theorem
+
+A single-hidden-layer MLP with a non-polynomial activation function can approximate any continuous function on a compact set to arbitrary precision:
+
+> For any continuous $f: \mathbb{R}^d \to \mathbb{R}$ and $\epsilon > 0$, there exists $m$ and parameters such that $|f(\mathbf{x}) - \sum_{j=1}^{m} \alpha_j \sigma(\mathbf{w}_j^\top \mathbf{x} + b_j)| < \epsilon$ for all $\mathbf{x}$ in the compact set.
+
+However, the theorem says nothing about the required width $m$ or learnability.
+
+## Weight Initialization
+
+Proper initialization prevents vanishing/exploding gradients:
+
+**Xavier/Glorot** (for sigmoid/tanh):
+$$W_{ij}^{(l)} \sim \mathcal{N}\left(0, \frac{2}{n_{l-1} + n_l}\right)$$
+
+**He** (for ReLU):
+$$W_{ij}^{(l)} \sim \mathcal{N}\left(0, \frac{2}{n_{l-1}}\right)$$
+
+## Python Implementation (PyTorch)
+
+```python
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import DataLoader, TensorDataset
+from sklearn.datasets import make_moons
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+# Generate data
+X, y = make_moons(n_samples=1000, noise=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+# Convert to PyTorch tensors
+X_train_t = torch.FloatTensor(X_train)
+y_train_t = torch.LongTensor(y_train)
+X_test_t = torch.FloatTensor(X_test)
+y_test_t = torch.LongTensor(y_test)
+
+train_ds = TensorDataset(X_train_t, y_train_t)
+train_loader = DataLoader(train_ds, batch_size=32, shuffle=True)
+
+# Define MLP
+class MLP(nn.Module):
+    def __init__(self, input_dim=2, hidden_dim=64, output_dim=2):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, output_dim),
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
+# Training
+model = MLP()
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.Adam(model.parameters(), lr=0.01)
+
+for epoch in range(200):
+    for X_batch, y_batch in train_loader:
+        optimizer.zero_grad()
+        output = model(X_batch)
+        loss = criterion(output, y_batch)
+        loss.backward()
+        optimizer.step()
+
+# Evaluation
+model.eval()
+with torch.no_grad():
+    preds = model(X_test_t).argmax(dim=1).numpy()
+print(f"Test accuracy: {accuracy_score(y_test, preds):.4f}")
+```
+
+## Summary
+
+- Neural networks are universal function approximators
+- Backpropagation efficiently computes gradients via the chain rule
+- ReLU and its variants address the vanishing gradient problem
+- Proper weight initialization (Xavier/He) stabilizes training
+- Adam optimizer is the default choice for training deep networks
+
+## References
+
+1. Goodfellow, I., Bengio, Y., & Courville, A. (2016). *Deep Learning*. MIT Press.
+2. Rumelhart, D. E., Hinton, G. E., & Williams, R. J. (1986). Learning Representations by Back-Propagating Errors. *Nature*, 323, 533–536.
+3. He, K., et al. (2015). Delving Deep into Rectifiers: Surpassing Human-Level Performance on ImageNet Classification. *ICCV*.
