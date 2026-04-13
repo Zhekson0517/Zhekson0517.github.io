@@ -2,6 +2,16 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
+<script is:inline>
+  // Load Fuse.js library from CDN
+  (function() {
+    var script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.umd.min.js';
+    script.async = true;
+    document.head.appendChild(script);
+  })();
+</script>
+
 <BaseLayout title="Search" description="Search all chapters and notes.">
   <section class="fade-in">
     <h1 class="section-title">Search</h1>
@@ -17,9 +27,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div id="search-empty" class="search-empty">
         <p>Enter keywords to search across all chapters.</p>
       </div>
-    </div>
+    </section>
   </section>
-  <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.umd.min.js"></script>
 </BaseLayout>
 
 <script is:inline>
