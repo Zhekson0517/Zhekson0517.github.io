@@ -1,0 +1,174 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Search" description="Search all chapters and notes.">
+  <section class="fade-in">
+    <h1 class="section-title">Search</h1>
+    <div class="search-section">
+      <input
+        type="text"
+        id="search-input"
+        class="search-input"
+        placeholder="Search chapters, tags, keywords..."
+        autocomplete="off"
+      />
+      <div id="search-results" class="search-results"></div>
+      <div id="search-empty" class="search-empty">
+        <p>Enter keywords to search across all chapters.</p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script is:inline>
+  (function() {
+    var input = document.getElementById('search-input');
+    var resultsContainer = document.getElementById('search-results');
+    var emptyState = document.getElementById('search-empty');
+    if (!input || !resultsContainer || !emptyState) return;
+
+    var fuse = null;
+    var searchData = null;
+
+    function loadSearch() {
+      if (fuse) return Promise.resolve();
+      return fetch('/api/search-index.json')
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          searchData = data;
+          fuse = new Fuse(data, {
+            keys: [
+              { name: 'title', weight: 0.4 },
+              { name: 'abstract', weight: 0.3 },
+              { name: 'tags', weight: 0.2 },
+              { name: 'category', weight: 0.1 }
+            ],
+            threshold: 0.4,
+            includeScore: true,
+          });
+        });
+    }
+
+    function renderResults(results) {
+      if (!results.length) {
+        resultsContainer.innerHTML = '';
+        emptyState.style.display = 'block';
+        emptyState.querySelector('p').textContent = 'No results found.';
+        return;
+      }
+      emptyState.style.display = 'none';
+      resultsContainer.innerHTML = results.map(function(r) {
+        var item = r.item;
+        return '<a href="' + item.href + '" class="search-result-card">' +
+          '<div class="search-result-title">' + item.title + '</div>' +
+          '<div class="search-result-meta">' + item.category + ' · ' + item.collection.toUpperCase() + '</div>' +
+          '<div class="search-result-abstract">' + item.abstract + '</div>' +
+          '<div class="search-result-tags">' + item.tags.map(function(t) { return '<span class="tag">' + t + '</span>'; }).join('') + '</div>' +
+        '</a>';
+      }).join('');
+    }
+
+    var debounceTimer;
+    input.addEventListener('input', function() {
+      clearTimeout(debounceTimer);
+      var query = input.value.trim();
+      if (!query) {
+        resultsContainer.innerHTML = '';
+        emptyState.style.display = 'block';
+        emptyState.querySelector('p').textContent = 'Enter keywords to search across all chapters.';
+        return;
+      }
+      debounceTimer = setTimeout(function() {
+        loadSearch().then(function() {
+          if (!fuse) return;
+          var results = fuse.search(query);
+          renderResults(results);
+        });
+      }, 200);
+    });
+
+    var params = new URLSearchParams(window.location.search);
+    var q = params.get('q');
+    if (q) {
+      input.value = q;
+      loadSearch().then(function() {
+        if (!fuse) return;
+        var results = fuse.search(q);
+        renderResults(results);
+      });
+    }
+  })();
+</script>
+
+<style>
+  .search-section {
+    margin-top: 1em;
+  }
+
+  .search-results {
+    margin-top: 1.5em;
+  }
+
+  .search-empty {
+    margin-top: 2em;
+    text-align: center;
+    color: var(--color-secondary);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-small);
+  }
+
+  .search-empty p {
+    text-indent: 0;
+  }
+
+  .search-result-card {
+    display: block;
+    padding: 1em 0;
+    border-bottom: 1px solid var(--color-border);
+    text-decoration: none;
+    transition: all var(--transition-normal);
+  }
+
+  .search-result-card:hover {
+    transform: translateX(4px);
+  }
+
+  .search-result-card:hover .search-result-title {
+    color: var(--color-accent);
+  }
+
+  .search-result-title {
+    font-family: var(--font-sans);
+    font-size: 12pt;
+    font-weight: 600;
+    color: var(--color-heading);
+    margin-bottom: 0.2em;
+    transition: color var(--transition-fast);
+  }
+
+  .search-result-meta {
+    font-family: var(--font-sans);
+    font-size: var(--font-size-small);
+    color: var(--color-secondary);
+    margin-bottom: 0.3em;
+  }
+
+  .search-result-abstract {
+    font-size: var(--font-size-small);
+    color: var(--color-text);
+    line-height: 1.5;
+    text-indent: 0;
+    margin-bottom: 0.4em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .search-result-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3em;
+  }
+</style>

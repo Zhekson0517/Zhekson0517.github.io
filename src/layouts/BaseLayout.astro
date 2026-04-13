@@ -48,6 +48,7 @@ const { title, description = 'Personal academic blog focusing on machine learnin
       <slot />
     </main>
     <Footer />
+    <button class="back-to-top" id="back-to-top" aria-label="Back to top">&uarr;</button>
     <script is:inline>
       document.querySelectorAll('a[href^="#"]').forEach(function(a) {
         a.addEventListener('click', function(e) {
@@ -59,6 +60,44 @@ const { title, description = 'Personal academic blog focusing on machine learnin
           }
         });
       });
+    </script>
+    <script is:inline>
+      document.querySelectorAll('pre code').forEach(function(codeBlock) {
+        var pre = codeBlock.parentElement;
+        if (!pre) return;
+        pre.style.position = 'relative';
+        var btn = document.createElement('button');
+        btn.className = 'code-copy-btn';
+        btn.textContent = 'Copy';
+        btn.setAttribute('aria-label', 'Copy code');
+        btn.addEventListener('click', function() {
+          navigator.clipboard.writeText(codeBlock.textContent || '').then(function() {
+            btn.textContent = 'Copied!';
+            btn.classList.add('copied');
+            setTimeout(function() {
+              btn.textContent = 'Copy';
+              btn.classList.remove('copied');
+            }, 2000);
+          });
+        });
+        pre.appendChild(btn);
+      });
+    </script>
+    <script is:inline>
+      (function() {
+        var btn = document.getElementById('back-to-top');
+        if (!btn) return;
+        window.addEventListener('scroll', function() {
+          if (window.scrollY > 400) {
+            btn.classList.add('back-to-top--visible');
+          } else {
+            btn.classList.remove('back-to-top--visible');
+          }
+        });
+        btn.addEventListener('click', function() {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      })();
     </script>
   </body>
 </html>

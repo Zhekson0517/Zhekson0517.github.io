@@ -97,7 +97,7 @@
 }
 
 .related-notes h3 {
-  font-size: 14pt;
+  font-size: 12pt;
   font-family: var(--font-sans);
   margin-bottom: 0.8em;
 }
@@ -194,14 +194,14 @@
 }
 
 .home-hero h1 {
-  font-size: 24pt;
+  font-size: 20pt;
   font-weight: 700;
   margin-bottom: 0.3em;
 }
 
 .home-hero .subtitle {
   font-family: var(--font-sans);
-  font-size: 13pt;
+  font-size: 11pt;
   color: var(--color-secondary);
   margin-bottom: 0.5em;
 }

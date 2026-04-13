@@ -22,12 +22,12 @@
   --color-selection: rgba(0, 51, 102, 0.15);
 
   --content-width: 960px;
-  --font-size-body: 12pt;
-  --font-size-h1: 24pt;
-  --font-size-h2: 18pt;
-  --font-size-h3: 15pt;
-  --font-size-small: 10pt;
-  --font-size-code: 11pt;
+  --font-size-body: 11pt;
+  --font-size-h1: 20pt;
+  --font-size-h2: 16pt;
+  --font-size-h3: 13pt;
+  --font-size-small: 9pt;
+  --font-size-code: 10pt;
   --line-height-body: 1.6;
   --line-height-heading: 1.2;
   --paragraph-spacing: 1.4em;
@@ -176,6 +176,70 @@ pre code {
   font-size: inherit;
 }
 
+.code-copy-btn {
+  position: absolute;
+  top: 0.5em;
+  right: 0.5em;
+  font-family: var(--font-sans);
+  font-size: 8pt;
+  padding: 2px 8px;
+  background: var(--color-tag-bg);
+  color: var(--color-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 2px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+}
+
+pre:hover .code-copy-btn {
+  opacity: 1;
+}
+
+.code-copy-btn:hover {
+  background: var(--color-tag-hover);
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.code-copy-btn.copied {
+  color: #2e7d32;
+  border-color: #2e7d32;
+  opacity: 1;
+}
+
+.back-to-top {
+  position: fixed;
+  bottom: 2em;
+  right: 2em;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--color-border);
+  border-radius: 2px;
+  background: var(--color-bg);
+  color: var(--color-secondary);
+  font-size: 14pt;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-normal), color var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-theme);
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px var(--color-card-shadow);
+}
+
+.back-to-top--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.back-to-top:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -241,7 +305,7 @@ img {
 
 .nav-title {
   font-family: var(--font-sans);
-  font-size: 14pt;
+  font-size: 12pt;
   font-weight: 700;
   color: var(--color-heading);
   text-decoration: none;
@@ -252,6 +316,39 @@ img {
   display: flex;
   align-items: center;
   gap: 1.5em;
+}
+
+.nav-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  z-index: 110;
+}
+
+.hamburger-line {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--color-text);
+  transition: all var(--transition-fast);
+  border-radius: 1px;
+}
+
+.nav-hamburger--open .hamburger-line:nth-child(1) {
+  transform: rotate(45deg) translate(4px, 4px);
+}
+
+.nav-hamburger--open .hamburger-line:nth-child(2) {
+  opacity: 0;
+}
+
+.nav-hamburger--open .hamburger-line:nth-child(3) {
+  transform: rotate(-45deg) translate(4px, -4px);
 }
 
 .nav-link {
@@ -359,7 +456,7 @@ img {
 
 .note-card-title {
   font-family: var(--font-sans);
-  font-size: 14pt;
+  font-size: 12pt;
   font-weight: 600;
   margin-bottom: 0.3em;
 }
@@ -420,7 +517,7 @@ img {
   border-bottom: 2px solid var(--color-border);
   background: transparent;
   font-family: var(--font-serif);
-  font-size: 13pt;
+  font-size: 12pt;
   color: var(--color-text);
   outline: none;
   transition: border-color var(--transition-normal), color var(--transition-theme);
@@ -501,18 +598,52 @@ img {
 
 @media (max-width: 768px) {
   :root {
-    --font-size-body: 11pt;
-    --font-size-h1: 22pt;
-    --font-size-h2: 16pt;
-    --font-size-h3: 13pt;
+    --font-size-body: 10pt;
+    --font-size-h1: 18pt;
+    --font-size-h2: 14pt;
+    --font-size-h3: 12pt;
   }
 
   .nav-inner {
     padding: 0.6em 1em;
   }
 
+  .nav-hamburger {
+    display: flex;
+  }
+
   .nav-links {
-    gap: 1em;
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    padding: 1em;
+    gap: 0;
+    z-index: 105;
+    box-shadow: 0 4px 12px var(--color-card-shadow);
+  }
+
+  .nav-links--open {
+    display: flex;
+  }
+
+  .nav-links .nav-link {
+    padding: 0.6em 0;
+    border-bottom: 1px solid var(--color-border);
+    width: 100%;
+  }
+
+  .nav-links .nav-link:last-of-type {
+    border-bottom: none;
+  }
+
+  .nav-links .theme-toggle {
+    margin-top: 0.5em;
+    align-self: flex-start;
   }
 
   .page {

@@ -8,6 +8,7 @@ const navItems = [
   { href: '/embedded', label: 'Embedded Systems' },
   { href: '/film', label: 'Film' },
   { href: '/archive', label: 'Archive' },
+  { href: '/search', label: 'Search' },
   { href: '/about', label: 'About' },
 ];
 ---
@@ -15,7 +16,12 @@ const navItems = [
 <nav class="nav" id="site-nav">
   <div class="nav-inner">
     <a href="/" class="nav-title">Zhe's Blog</a>
-    <div class="nav-links">
+    <button class="nav-hamburger" id="nav-hamburger" aria-label="Toggle navigation">
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+    </button>
+    <div class="nav-links" id="nav-links">
       {navItems.map(item => (
         <a href={item.href} class:list={['nav-link', currentPath === item.href && 'active']}>{item.label}</a>
       ))}
@@ -23,3 +29,23 @@ const navItems = [
     </div>
   </div>
 </nav>
+
+<script is:inline>
+  (function() {
+    var hamburger = document.getElementById('nav-hamburger');
+    var navLinks = document.getElementById('nav-links');
+    if (!hamburger || !navLinks) return;
+
+    hamburger.addEventListener('click', function() {
+      navLinks.classList.toggle('nav-links--open');
+      hamburger.classList.toggle('nav-hamburger--open');
+    });
+
+    navLinks.querySelectorAll('.nav-link').forEach(function(link) {
+      link.addEventListener('click', function() {
+        navLinks.classList.remove('nav-links--open');
+        hamburger.classList.remove('nav-hamburger--open');
+      });
+    });
+  })();
+</script>
