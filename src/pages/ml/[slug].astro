@@ -1,5 +1,6 @@
 ---
 import NoteLayout from '../../layouts/NoteLayout.astro';
+import Comment from '../../components/Comment.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -64,4 +65,6 @@ const relatedNotes = allNotes
       </ul>
     </div>
   )}
+
+  <Comment slug={note.data.slug} title={note.data.title} />
 </NoteLayout>

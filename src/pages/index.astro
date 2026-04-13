@@ -59,3 +59,69 @@ function getHref(note: NoteLike) {
     ))}
   </section>
 </BaseLayout>
+
+<style>
+  .home-hero {
+    margin-bottom: 3em;
+  }
+
+  .home-hero h1 {
+    font-size: 2em;
+    margin-bottom: 0.3em;
+  }
+
+  .subtitle {
+    font-family: var(--font-sans);
+    font-size: 11pt;
+    color: var(--color-secondary);
+    margin-bottom: 0.3em;
+    text-indent: 0;
+  }
+
+  .institution {
+    font-family: var(--font-sans);
+    font-size: 10pt;
+    color: var(--color-secondary);
+    margin-bottom: 1em;
+    text-indent: 0;
+  }
+
+  .bio {
+    font-size: var(--font-size-body);
+    line-height: 1.6;
+    margin-bottom: 1.5em;
+    text-indent: 0;
+  }
+
+  .home-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8em 1.5em;
+  }
+
+  .home-links a {
+    font-family: var(--font-sans);
+    font-size: 10pt;
+    color: var(--color-link);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .home-links a:hover {
+    color: var(--color-link-hover);
+  }
+
+  @media (max-width: 768px) {
+    .home-hero h1 {
+      font-size: 1.6em;
+    }
+
+    .bio {
+      font-size: 10pt;
+    }
+
+    .home-links {
+      gap: 0.6em 1.2em;
+    }
+  }
+</style>

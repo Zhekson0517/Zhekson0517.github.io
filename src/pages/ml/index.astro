@@ -130,10 +130,20 @@ const sortedCategories = categoryOrder.filter(c => categories.includes(c));
     .chapter-card {
       flex-direction: column;
       gap: 0.5em;
+      padding: 0.8em;
     }
 
     .chapter-number {
       min-width: auto;
+      padding-top: 0;
+    }
+
+    .chapter-title {
+      font-size: 11pt;
+    }
+
+    .chapter-abstract {
+      -webkit-line-clamp: 3;
     }
   }
 </style>

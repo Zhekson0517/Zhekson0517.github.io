@@ -439,19 +439,22 @@ img {
 .fade-in-delay-5 { animation-delay: 400ms; }
 
 .note-card {
-  padding: 1.2em 0;
-  border-bottom: 1px solid var(--color-border);
+  padding: 1.2em 1em;
+  margin-bottom: 0.8em;
+  border: 1px solid transparent;
+  border-radius: 4px;
   transition: all var(--transition-normal);
   cursor: pointer;
 }
 
 .note-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 4px 12px var(--color-card-shadow-hover);
+  box-shadow: 0 6px 16px var(--color-card-shadow-hover);
+  border-color: var(--color-border);
 }
 
 .note-card:last-child {
-  border-bottom: none;
+  margin-bottom: 0;
 }
 
 .note-card-title {
@@ -662,6 +665,18 @@ img {
     border-bottom: 1px solid var(--color-border);
     padding: 1em 0;
     margin-bottom: 1em;
+  }
+
+  .footer-inner {
+    padding: 1.2em 1em;
+    font-size: 8pt;
+  }
+
+  .back-to-top {
+    bottom: 1.2em;
+    right: 1.2em;
+    width: 32px;
+    height: 32px;
   }
 }
 

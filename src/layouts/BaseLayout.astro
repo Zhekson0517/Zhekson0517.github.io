@@ -2,6 +2,7 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import ThemeToggle from '../components/ThemeToggle.astro';
+import AdminPanel from '../components/AdminPanel.astro';
 import '../styles/global.css';
 import '../styles/latex-theme.css';
 
@@ -48,6 +49,7 @@ const { title, description = 'Personal academic blog focusing on machine learnin
       <slot />
     </main>
     <Footer />
+    <AdminPanel />
     <button class="back-to-top" id="back-to-top" aria-label="Back to top">&uarr;</button>
     <script is:inline>
       document.querySelectorAll('a[href^="#"]').forEach(function(a) {

@@ -353,6 +353,15 @@ const watchedCount = watched.length;
   }
 
   @media (max-width: 768px) {
+    .month-nav {
+      gap: 0.4em;
+    }
+
+    .month-link {
+      font-size: 9pt;
+      padding: 0.25em 0.6em;
+    }
+
     .timeline {
       padding-left: 2em;
     }
@@ -361,28 +370,54 @@ const watchedCount = watched.length;
       left: 0.5em;
     }
 
+    .month-marker {
+      font-size: 13pt;
+    }
+
     .month-marker::before {
       left: -1.7em;
+      width: 10px;
+      height: 10px;
     }
 
     .film-card::before {
       left: -1.65em;
+      width: 6px;
+      height: 6px;
     }
 
     .film-card {
       flex-direction: column;
       gap: 0.3em;
+      padding: 0.6em 0.8em;
     }
 
     .film-watched-date,
     .film-rank {
       min-width: auto;
-      font-size: 12pt;
+      font-size: 11pt;
     }
 
     .film-title-row {
       flex-direction: column;
       gap: 0.1em;
+    }
+
+    .film-title {
+      font-size: 11pt;
+    }
+
+    .film-meta {
+      font-size: 9pt;
+      flex-wrap: wrap;
+    }
+
+    .film-sep {
+      margin: 0 0.2em;
+    }
+
+    .film-quote {
+      font-size: 9pt;
     }
   }
 </style>
