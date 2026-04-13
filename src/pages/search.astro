@@ -2,16 +2,6 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<script is:inline>
-  // Load Fuse.js library from CDN
-  (function() {
-    var script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.umd.min.js';
-    script.async = true;
-    document.head.appendChild(script);
-  })();
-</script>
-
 <BaseLayout title="Search" description="Search all chapters and notes.">
   <section class="fade-in">
     <h1 class="section-title">Search</h1>
@@ -27,89 +17,95 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div id="search-empty" class="search-empty">
         <p>Enter keywords to search across all chapters.</p>
       </div>
-    </section>
+    </div>
   </section>
-</BaseLayout>
+  
+  <script is:inline>
+    // Load Fuse.js library from CDN
+    var fuseScript = document.createElement('script');
+    fuseScript.src = 'https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.umd.min.js';
+    fuseScript.async = true;
+    document.head.appendChild(fuseScript);
+    
+    fuseScript.onload = function() {
+      var input = document.getElementById('search-input');
+      var resultsContainer = document.getElementById('search-results');
+      var emptyState = document.getElementById('search-empty');
+      if (!input || !resultsContainer || !emptyState) return;
 
-<script is:inline>
-  (function() {
-    var input = document.getElementById('search-input');
-    var resultsContainer = document.getElementById('search-results');
-    var emptyState = document.getElementById('search-empty');
-    if (!input || !resultsContainer || !emptyState) return;
+      var fuse = null;
+      var searchData = null;
 
-    var fuse = null;
-    var searchData = null;
-
-    function loadSearch() {
-      if (fuse) return Promise.resolve();
-      return fetch('/api/search-index.json')
-        .then(function(res) { return res.json(); })
-        .then(function(data) {
-          searchData = data;
-          fuse = new Fuse(data, {
-            keys: [
-              { name: 'title', weight: 0.4 },
-              { name: 'abstract', weight: 0.3 },
-              { name: 'tags', weight: 0.2 },
-              { name: 'category', weight: 0.1 }
-            ],
-            threshold: 0.4,
-            includeScore: true,
+      function loadSearch() {
+        if (fuse) return Promise.resolve();
+        return fetch('/api/search-index.json')
+          .then(function(res) { return res.json(); })
+          .then(function(data) {
+            searchData = data;
+            fuse = new Fuse(data, {
+              keys: [
+                { name: 'title', weight: 0.4 },
+                { name: 'abstract', weight: 0.3 },
+                { name: 'tags', weight: 0.2 },
+                { name: 'category', weight: 0.1 }
+              ],
+              threshold: 0.4,
+              includeScore: true,
+            });
           });
-        });
-    }
-
-    function renderResults(results) {
-      if (!results.length) {
-        resultsContainer.innerHTML = '';
-        emptyState.style.display = 'block';
-        emptyState.querySelector('p').textContent = 'No results found.';
-        return;
       }
-      emptyState.style.display = 'none';
-      resultsContainer.innerHTML = results.map(function(r) {
-        var item = r.item;
-        return '<a href="' + item.href + '" class="search-result-card">' +
-          '<div class="search-result-title">' + item.title + '</div>' +
-          '<div class="search-result-meta">' + item.category + ' · ' + item.collection.toUpperCase() + '</div>' +
-          '<div class="search-result-abstract">' + item.abstract + '</div>' +
-          '<div class="search-result-tags">' + item.tags.map(function(t) { return '<span class="tag">' + t + '</span>'; }).join('') + '</div>' +
-        '</a>';
-      }).join('');
-    }
 
-    var debounceTimer;
-    input.addEventListener('input', function() {
-      clearTimeout(debounceTimer);
-      var query = input.value.trim();
-      if (!query) {
-        resultsContainer.innerHTML = '';
-        emptyState.style.display = 'block';
-        emptyState.querySelector('p').textContent = 'Enter keywords to search across all chapters.';
-        return;
+      function renderResults(results) {
+        if (!results.length) {
+          resultsContainer.innerHTML = '';
+          emptyState.style.display = 'block';
+          emptyState.querySelector('p').textContent = 'No results found.';
+          return;
+        }
+        emptyState.style.display = 'none';
+        resultsContainer.innerHTML = results.map(function(r) {
+          var item = r.item;
+          return '<a href="' + item.href + '" class="search-result-card">' +
+            '<div class="search-result-title">' + item.title + '</div>' +
+            '<div class="search-result-meta">' + item.category + ' · ' + item.collection.toUpperCase() + '</div>' +
+            '<div class="search-result-abstract">' + item.abstract + '</div>' +
+            '<div class="search-result-tags">' + item.tags.map(function(t) { return '<span class="tag">' + t + '</span>'; }).join('') + '</div>' +
+          '</a>';
+        }).join('');
       }
-      debounceTimer = setTimeout(function() {
+
+      var debounceTimer;
+      input.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        var query = input.value.trim();
+        if (!query) {
+          resultsContainer.innerHTML = '';
+          emptyState.style.display = 'block';
+          emptyState.querySelector('p').textContent = 'Enter keywords to search across all chapters.';
+          return;
+        }
+        debounceTimer = setTimeout(function() {
+          loadSearch().then(function() {
+            if (!fuse) return;
+            var results = fuse.search(query);
+            renderResults(results);
+          });
+        }, 200);
+      });
+
+      var params = new URLSearchParams(window.location.search);
+      var q = params.get('q');
+      if (q) {
+        input.value = q;
         loadSearch().then(function() {
           if (!fuse) return;
-          var results = fuse.search(query);
+          var results = fuse.search(q);
           renderResults(results);
         });
-      }, 200);
-    });
-
-    var params = new URLSearchParams(window.location.search);
-    var q = params.get('q');
-    if (q) {
-      input.value = q;
-      loadSearch().then(function() {
-        if (!fuse) return;
-        var results = fuse.search(q);
-        renderResults(results);
-      });
-    }
-  })();
-</script>
+      }
+    };
+  </script>
+</BaseLayout>
 
 <style>
   .search-section {
